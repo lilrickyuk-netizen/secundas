@@ -11,7 +11,6 @@ import {
   SPACING,
   TYPOGRAPHY,
 } from '../utils/theme';
-n
 
 const ATTEMPT_COLORS = {
   white: COLORS.text,

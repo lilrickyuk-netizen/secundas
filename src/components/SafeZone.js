@@ -158,7 +158,7 @@ useEffect(() => {
         </RadialGradient>
       </Defs>
 
-      <Circle
+      <AnimatedCircle
         cx={center}
         cy={center}
         r={radius + 40}
