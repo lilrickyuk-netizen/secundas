@@ -12,6 +12,7 @@ import {
   TYPOGRAPHY,
 } from '../utils/theme';
 
+
 const ATTEMPT_COLORS = {
   white: COLORS.text,
   gold: '#FFD166',
@@ -20,16 +21,18 @@ const ATTEMPT_COLORS = {
   hotRed: COLORS.fail,
 };
 
-function getAttemptColor(attempts) {
-  if (attempts >= 100) {
+function getAttemptColor(
+  attempts
+) {
+  if (attempts >= 200) {
     return ATTEMPT_COLORS.hotRed;
   }
 
-  if (attempts >= 50) {
+  if (attempts >= 100) {
     return ATTEMPT_COLORS.red;
   }
 
-  if (attempts >= 25) {
+  if (attempts >= 50) {
     return ATTEMPT_COLORS.orange;
   }
 
@@ -40,17 +43,19 @@ function getAttemptColor(attempts) {
   return ATTEMPT_COLORS.white;
 }
 
-function getGlowStrength(attempts) {
+function getGlowStrength(
+  attempts
+) {
+  if (attempts >= 200) {
+    return 28;
+  }
+
   if (attempts >= 100) {
     return 24;
   }
 
   if (attempts >= 50) {
     return 20;
-  }
-
-  if (attempts >= 25) {
-    return 16;
   }
 
   if (attempts >= 10) {
@@ -73,6 +78,10 @@ export default function AttemptCounter({
   ).current;
 
   const scale = useRef(
+    new Animated.Value(1)
+  ).current;
+
+  const hotPulse = useRef(
     new Animated.Value(1)
   ).current;
 
@@ -105,12 +114,63 @@ export default function AttemptCounter({
         useNativeDriver: true,
       }),
 
+
+
       Animated.spring(scale, {
         toValue: 1,
         friction: 4,
         tension: 140,
         useNativeDriver: true,
       }),
+
+useEffect(() => {
+  hotPulse.stopAnimation();
+
+  hotPulse.setValue(1);
+
+  if (attempts < 200) {
+    return undefined;
+  }
+
+  const pulseAnimation =
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(
+          hotPulse,
+          {
+            toValue: 1.12,
+
+            duration: 420,
+
+            useNativeDriver:
+              true,
+          }
+        ),
+
+        Animated.timing(
+          hotPulse,
+          {
+            toValue: 1,
+
+            duration: 420,
+
+            useNativeDriver:
+              true,
+          }
+        ),
+      ])
+    );
+
+  pulseAnimation.start();
+
+  return () => {
+    pulseAnimation.stop();
+  };
+}, [
+  attempts,
+  hotPulse,
+]),
+
     ]).start();
   }, [
     attempts,
@@ -120,9 +180,12 @@ export default function AttemptCounter({
   ]);
 
   const worldAverageText =
-    typeof worldAverage === 'number'
-      ? worldAverage.toFixed(1)
-      : '—';
+  typeof worldAverage ===
+  'number'
+    ? `WORLD AVG: ${worldAverage.toFixed(
+        1
+      )}`
+    : 'WORLD AVG UNAVAILABLE';
 
   return (
     <View style={styles.container}>
@@ -146,6 +209,9 @@ export default function AttemptCounter({
                 {
                   scale,
                 },
+                {
+                  scale:hotPulse,
+                },
               ],
 
               opacity,
@@ -164,7 +230,7 @@ export default function AttemptCounter({
         <View style={styles.averageLine} />
 
         <Text style={styles.worldAverageText}>
-          WORLD AVG {worldAverageText}
+           {worldAverageText}
         </Text>
 
         <View style={styles.averageLine} />

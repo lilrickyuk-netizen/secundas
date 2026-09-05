@@ -460,7 +460,7 @@ setResult('fail')
               stopOrbit();
             },
         }),
-      []
+      [levelConfig]
     );
 
   const handleRetry = () => {
@@ -534,6 +534,17 @@ setResult('fail')
                 styles.arenaBackground
               }
             >
+              <text
+              pointerEvents="none"
+              style={
+                styles.levelWatermark
+              }
+>
+  {String(level).padStart(
+    2,
+    '0'
+  )}
+</text>
               <SafeZone
                 size={ARENA_SIZE}
                 radius={ARENA_RADIUS}
@@ -560,6 +571,9 @@ setResult('fail')
               >
                 <Indicator
                   size={DOT_SIZE}
+                  angle={
+                    currentAngle.current
+                  }
                 />
               </Animated.View>
 
@@ -591,13 +605,18 @@ setResult('fail')
                 TAP TO STOP
               </Text>
 
-              <Text
-                style={
-                  styles.targetText
-                }
-              >
-                HIT THE SAFE ZONE
-              </Text>
+<Text
+  style={
+    styles.targetText
+  }
+>
+  {levelConfig.realGameBegins
+    ? 'NOW THE REAL GAME BEGINS'
+    : levelConfig.tutorial
+      ? 'STOP INSIDE THE GREEN SAFE ZONE'
+      : 'HIT THE SAFE ZONE'}
+</Text>
+
             </>
           )}
 
@@ -628,7 +647,7 @@ setResult('fail')
 
 <DeathModal
 visible={result === 'fail'}
-attempts={attemps}
+attempts={attempts}
 level={level}
 nearMiss={nearMiss}
 onDismiss={handleRetry}
@@ -841,6 +860,27 @@ const styles =
 
       backgroundColor:
         'rgba(3, 8, 12, 0.72)',
+    },
+
+    levelWatermark: { 
+      ...TYPOGRAPHY.number,
+
+      position: 'absolute',
+
+      left: 0,
+      right: 0,
+      top: 78,
+
+      zIndex: 0,
+
+      color:
+      'rgba(245,247,250,0.045)',
+
+      fontSize: 138,
+      lineHeight: 142,
+      letterSpacing: 8,
+      textAlign: 'center',
+
     },
 
     indicatorPosition: {

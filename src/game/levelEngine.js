@@ -12,10 +12,10 @@ const SPEED_GROWTH_RATE = 0.06;
 
 const SAFE_ZONE_BASE_START = 300;
 
-const SAFE_ZONE_ROTATION_START_LEVEL = 11;
+const SAFE_ZONE_ROTATION_START_LEVEL = 10;
 const SAFE_ZONE_ROTATION_SPEED = 6;
 
-const SPEED_PULSE_START_LEVEL = 26;
+const SPEED_PULSE_START_LEVEL = 25;
 const SPEED_PULSE_PERCENT = 0.15;
 
 function getSafeZonePercent(level, orbitRadius) {
@@ -33,14 +33,13 @@ function getSafeZonePercent(level, orbitRadius) {
     return LEVEL_FOUR_SAFE_PERCENT;
   }
 
-  const levelsAfterFour = level - 4;
+  const levelsAfterFour = 
+  level - 4;
 
-  const reducedPercent =
-    LEVEL_FOUR_SAFE_PERCENT *
-    Math.pow(
-      1 - SAFE_ZONE_SHRINK_RATE,
-      levelsAfterFour
-    );
+ const reducedPercent =
+LEVEL_FOUR_SAFE_PERCENT -
+SAFE_ZONE_SHRINK_RATE * 
+levelsAfterFour;
 
   return Math.max(
     reducedPercent,

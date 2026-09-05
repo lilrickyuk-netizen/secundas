@@ -1,258 +1,731 @@
-import { 
-    Pressable,
-    ScrollView,
-    Settings,
-    StyleSheet,
-    Text,
-    View
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '../utils/constants';
 import {
-    LAYOUT,
-    RADII,
-    SPACING,
-    TYPOGRAPHY,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
+
+import {
+  COLORS,
+} from '../utils/constants';
+
+import {
+  LAYOUT,
+  RADII,
+  SPACING,
+  TYPOGRAPHY,
 } from '../utils/theme';
 
-export default function HomeScreen({ navigation }) {
-    return (
-        <SafeAreaView style={styles.screen}>
-            <ScrollView
-            contentContainerStyle={styles.container}
-            showsVerticalScrollIndicator={false}
-            >
-                <Text style={styles.title}>SECUNDAS</Text>
-
-                <Text style={styles.tagline}>
-                    One tap. One second. Endless rage.
-                </Text>
-
-                <Pressable
-                style={styles.startButton}
-                onPress={() => navigation.navigate('Game')}
-            >
-                <Text style={styles.startButtonText}>START</Text>
-                </Pressable>
-
-                <Pressable
-                style={styles.continueButton}
-                onPress={() => navigation.navigate('Game')}
-            >
-                <Text style={styles.continueButtonText}>CONTINUE LEVEL</Text>
-            </Pressable>
-            <View style={styles.dailyCard}>
-                <View style={styles.dailyHeader}>
-                    <Text style={styles.dailyTitle}>DAILY CHALLENGE</Text>
-                    <Text style={styles.dailyBadge}>TODAY</Text>
-                </View> 
-                <Text style={styles.dailyText}>TODAY'S TIMING CHALLENGE
-                </Text>
-                </View>
-                <View style={styles.statsRow}>
-  <View style={styles.statPanel}>
-    <Text style={styles.statValue}>0</Text>
-    <Text style={styles.statLabel}>STREAK</Text>
-  </View>
-
-  <View style={styles.statPanel}>
-    <Text style={styles.statValue}>0</Text>
-    <Text style={styles.statLabel}>TOTAL ATTEMPTS</Text>
-  </View>
-
-  <View style={styles.statPanel}>
-    <Text style={styles.statValue}>0</Text>
-    <Text style={styles.statLabel}>LEVELS COMPLETE</Text>
-  </View>
-</View>
-
-<Pressable
-  style={styles.challengeButton}
-  onPress={() => navigation.navigate('Challenge')}
->
-  <Text style={styles.challengeButtonText}>CHALLENGES</Text>
-
-  <View style={styles.challengeBadge}>
-    <Text style={styles.challengeBadgeText}>0</Text>
-  </View>
-</Pressable>
-
-<Pressable style={styles.settingsButton} onPress={() => navigation.navigate('Settings')}>
-    <Text style={styles.settingsButtonText}>SETTINGS</Text>
-</Pressable>
-
-</ScrollView>
-        </SafeAreaView>
-    );
+function TrophyMark() {
+  return (
+    <View style={styles.trophyMark}>
+      <View style={styles.trophyCup} />
+      <View style={styles.trophyStem} />
+      <View style={styles.trophyBase} />
+    </View>
+  );
 }
 
-const styles = StyleSheet.create({
+export default function HomeScreen({
+  navigation,
+}) {
+  return (
+    <SafeAreaView style={styles.screen}>
+      <ScrollView
+        contentContainerStyle={
+          styles.container
+        }
+        showsVerticalScrollIndicator={
+          false
+        }
+      >
+        <View style={styles.brandBlock}>
+          <View
+            style={styles.eclipseGlow}
+          />
+
+          <View
+            style={styles.eclipseRing}
+          />
+
+          <View
+            style={styles.eclipseCore}
+          />
+
+          <Text style={styles.title}>
+            SECUNDAS
+          </Text>
+
+          <Text style={styles.tagline}>
+            One tap. One second.
+            Endless rage.
+          </Text>
+        </View>
+
+        <Pressable
+          style={styles.startButton}
+          onPress={() =>
+            navigation.navigate(
+              'Game'
+            )
+          }
+        >
+          <Text
+            style={
+              styles.startButtonText
+            }
+          >
+            START
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.continueButton}
+          onPress={() =>
+            navigation.navigate(
+              'Game'
+            )
+          }
+        >
+          <Text
+            style={
+              styles.continueButtonText
+            }
+          >
+            CONTINUE LEVEL
+          </Text>
+        </Pressable>
+
+        <View style={styles.dailyCard}>
+          <View style={styles.dailyHeader}>
+            <View
+              style={
+                styles.dailyIdentity
+              }
+            >
+              <TrophyMark />
+
+              <View>
+                <Text
+                  style={
+                    styles.dailyTitle
+                  }
+                >
+                  DAILY CHALLENGE
+                </Text>
+
+                <Text
+                  style={
+                    styles.dailyText
+                  }
+                >
+                  TODAY'S TIMING
+                  CHALLENGE
+                </Text>
+              </View>
+            </View>
+
+            <Text
+              style={styles.dailyBadge}
+            >
+              TODAY
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statPanel}>
+            <Text style={styles.statIcon}>
+              ✦
+            </Text>
+
+            <Text
+              style={styles.statLabel}
+            >
+              STREAK
+            </Text>
+
+            <Text
+              style={styles.statValue}
+            >
+              0
+            </Text>
+          </View>
+
+          <View style={styles.statPanel}>
+            <Text style={styles.statIcon}>
+              ◉
+            </Text>
+
+            <Text
+              style={styles.statLabel}
+            >
+              TOTAL ATTEMPTS
+            </Text>
+
+            <Text
+              style={styles.statValue}
+            >
+              0
+            </Text>
+          </View>
+
+          <View style={styles.statPanel}>
+            <Text style={styles.statIcon}>
+              ◇
+            </Text>
+
+            <Text
+              style={styles.statLabel}
+            >
+              LEVELS COMPLETE
+            </Text>
+
+            <Text
+              style={styles.statValue}
+            >
+              0
+            </Text>
+          </View>
+        </View>
+
+        <Pressable
+          style={styles.challengeButton}
+          onPress={() =>
+            navigation.navigate(
+              'Challenge'
+            )
+          }
+        >
+          <Text
+            style={
+              styles.challengeButtonText
+            }
+          >
+            CHALLENGES
+          </Text>
+
+          <View
+            style={
+              styles.challengeBadge
+            }
+          >
+            <Text
+              style={
+                styles.challengeBadgeText
+              }
+            >
+              0
+            </Text>
+          </View>
+        </Pressable>
+
+        <Pressable
+          style={styles.settingsButton}
+          onPress={() =>
+            navigation.navigate(
+              'Settings'
+            )
+          }
+        >
+          <Text
+            style={
+              styles.settingsButtonText
+            }
+          >
+            SETTINGS
+          </Text>
+        </Pressable>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles =
+  StyleSheet.create({
     screen: {
-        flex: 1,
-        backgroundColor: COLORS.background
+      flex: 1,
+
+      backgroundColor:
+        COLORS.background,
     },
+
     container: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: LAYOUT.screenPadding
+      flexGrow: 1,
+
+      alignItems: 'center',
+
+      paddingHorizontal:
+        LAYOUT.screenPadding,
+
+      paddingTop: SPACING.xl,
+
+      paddingBottom:
+        SPACING.xxl,
     },
+
+    brandBlock: {
+      width: '100%',
+      height: 170,
+
+      justifyContent: 'center',
+      alignItems: 'center',
+
+      position: 'relative',
+    },
+
+    eclipseGlow: {
+      position: 'absolute',
+
+      width: 280,
+      height: 118,
+
+      borderRadius:
+        RADII.pill,
+
+      backgroundColor:
+        'rgba(255,45,85,0.035)',
+
+      shadowColor:
+        COLORS.accent,
+
+      shadowOpacity: 0.5,
+      shadowRadius: 28,
+
+      shadowOffset: {
+        width: 0,
+        height: 0,
+      },
+
+      elevation: 8,
+    },
+
+    eclipseRing: {
+      position: 'absolute',
+
+      width: 245,
+      height: 94,
+
+      borderRadius:
+        RADII.pill,
+
+      borderWidth: 1,
+
+      borderColor:
+        'rgba(255,45,85,0.62)',
+
+      backgroundColor:
+        'rgba(255,45,85,0.025)',
+
+      shadowColor:
+        COLORS.accent,
+
+      shadowOpacity: 0.75,
+      shadowRadius: 18,
+
+      shadowOffset: {
+        width: 0,
+        height: 0,
+      },
+    },
+
+    eclipseCore: {
+      position: 'absolute',
+
+      width: 190,
+      height: 68,
+
+      borderRadius:
+        RADII.pill,
+
+      backgroundColor:
+        COLORS.background,
+
+      borderWidth: 1,
+
+      borderColor:
+        'rgba(255,255,255,0.035)',
+    },
+
     title: {
-        ...TYPOGRAPHY.title,
-        color: COLORS.text,
+      ...TYPOGRAPHY.title,
+
+      color: COLORS.text,
+
+      zIndex: 2,
+
+      textShadowColor:
+        'rgba(255,255,255,0.18)',
+
+      textShadowRadius: 10,
+
+      textShadowOffset: {
+        width: 0,
+        height: 0,
+      },
     },
+
     tagline: {
-        ...TYPOGRAPHY.body,
-        color: COLORS.muted,
-        textAlign: 'center',
-        marginTop: 12,
-        letterSpacing: 1.5, 
+      ...TYPOGRAPHY.body,
+
+      marginTop: SPACING.md,
+
+      color: COLORS.muted,
+
+      textAlign: 'center',
+
+      letterSpacing: 2,
+
+      zIndex: 2,
     },
+
     startButton: {
-        minHeight: LAYOUT.minimumTouchTarget,
-        marginTop: SPACING.xxl,
-        paddingHorizontal: SPACING.xxl,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: COLORS.accent,
-        borderRadius: RADII.medium,
-        borderWidth: 1,
-        borderColor: COLORS.accent,
-        elevation: 8,
+      width: '100%',
+      maxWidth: 330,
+
+      minHeight: 54,
+
+      justifyContent: 'center',
+      alignItems: 'center',
+
+      backgroundColor:
+        COLORS.accent,
+
+      borderRadius:
+        RADII.pill,
+
+      borderWidth: 1,
+
+      borderColor:
+        COLORS.accent,
+
+      shadowColor:
+        COLORS.accent,
+
+      shadowOpacity: 0.55,
+
+      shadowRadius: 16,
+
+      shadowOffset: {
+        width: 0,
+        height: 0,
+      },
+
+      elevation: 8,
     },
+
     startButtonText: {
-        ...TYPOGRAPHY.subheading,
-        color: COLORS.text,
-        letterSpacing: 4,
+      ...TYPOGRAPHY.subheading,
+
+      color: COLORS.text,
+
+      letterSpacing: 5,
     },
+
     continueButton: {
-        minHeight: LAYOUT.minimumTouchTarget,
-        marginTop: SPACING.md,
-        paddingHorizontal: SPACING.xxl,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: COLORS.glass,
-        borderRadius: RADII.medium,
-        borderWidth: 1,
-        borderColor: COLORS.electric,
+      width: '100%',
+      maxWidth: 330,
+
+      minHeight: 54,
+
+      marginTop: SPACING.md,
+
+      justifyContent: 'center',
+      alignItems: 'center',
+
+      backgroundColor:
+        'rgba(0,209,255,0.035)',
+
+      borderRadius:
+        RADII.pill,
+
+      borderWidth: 1,
+
+      borderColor:
+        COLORS.electric,
     },
+
     continueButtonText: {
-        ...TYPOGRAPHY.body,
-        color: COLORS.electric,
-        letterSpacing: 3,
+      ...TYPOGRAPHY.body,
+
+      color:
+        COLORS.electric,
+
+      letterSpacing: 3,
     },
+
     dailyCard: {
-        width: '100%',
-        marginTop: SPACING.xxl,
-        padding: SPACING.lg,
-        backgroundColor: COLORS.panel,
-        borderRadius: RADII.panel,
-        borderWidth: 1,
-        borderColor: COLORS.accent,
+      width: '100%',
+
+      marginTop:
+        SPACING.xxl,
+
+      padding: SPACING.lg,
+
+      backgroundColor:
+        'rgba(255,255,255,0.035)',
+
+      borderRadius:
+        RADII.panel,
+
+      borderWidth: 1,
+
+      borderColor:
+        'rgba(255,45,85,0.55)',
     },
+
     dailyHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+      flexDirection: 'row',
+
+      justifyContent:
+        'space-between',
+
+      alignItems: 'center',
     },
+
+    dailyIdentity: {
+      flexDirection: 'row',
+
+      alignItems: 'center',
+
+      gap: SPACING.md,
+    },
+
+    trophyMark: {
+      width: 30,
+      height: 34,
+
+      alignItems: 'center',
+
+      justifyContent:
+        'flex-start',
+    },
+
+    trophyCup: {
+      width: 22,
+      height: 14,
+
+      borderWidth: 2,
+
+      borderColor:
+        COLORS.warning,
+
+      borderBottomLeftRadius: 9,
+
+      borderBottomRightRadius: 9,
+    },
+
+    trophyStem: {
+      width: 2,
+      height: 8,
+
+      backgroundColor:
+        COLORS.warning,
+    },
+
+    trophyBase: {
+      width: 16,
+      height: 2,
+
+      backgroundColor:
+        COLORS.warning,
+    },
+
     dailyTitle: {
-        ...TYPOGRAPHY.subheading,
-        color: COLORS.text,
-        letterSpacing: 2,
+      ...TYPOGRAPHY.subheading,
+
+      color: COLORS.text,
+
+      fontSize: 15,
+
+      letterSpacing: 2,
     },
-    dailyBadge: {
-        ...TYPOGRAPHY.label,
-        color: COLORS.accent,
-        letterSpacing: 2,
-    },
+
     dailyText: {
-        ...TYPOGRAPHY.body,
-        marginTop: SPACING.md,
-        color: COLORS.muted,
+      ...TYPOGRAPHY.label,
+
+      marginTop: SPACING.xs,
+
+      color: COLORS.muted,
+
+      fontSize: 8,
+
+      letterSpacing: 2,
     },
+
+    dailyBadge: {
+      ...TYPOGRAPHY.label,
+
+      color: COLORS.accent,
+
+      fontSize: 9,
+
+      letterSpacing: 2,
+    },
+
     statsRow: {
-  width: '100%',
-  flexDirection: 'row',
-  marginTop: SPACING.lg,
-  gap: SPACING.sm,
-},
+      width: '100%',
 
-statPanel: {
-  flex: 1,
-  minHeight: 82,
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: SPACING.sm,
-  backgroundColor: COLORS.glass,
-  borderRadius: RADII.medium,
-  borderWidth: 1,
-  borderColor: COLORS.panel,
-},
+      flexDirection: 'row',
 
-statValue: {
-  ...TYPOGRAPHY.number,
-  fontSize: 28,
-  color: COLORS.electric,
-},
+      marginTop: SPACING.lg,
 
-statLabel: {
-  ...TYPOGRAPHY.label,
-  marginTop: SPACING.xs,
-  color: COLORS.muted,
-  textAlign: 'center',
-}, 
-challengeButton: {
-  width: '100%',
-  minHeight: LAYOUT.minimumTouchTarget,
-  marginTop: SPACING.lg,
-  paddingHorizontal: SPACING.lg,
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  backgroundColor: COLORS.glass,
-  borderRadius: RADII.medium,
-  borderWidth: 1,
-  borderColor: COLORS.accent,
-},
+      gap: SPACING.sm,
+    },
 
-challengeButtonText: {
-  ...TYPOGRAPHY.label,
-  color: COLORS.text,
-  letterSpacing: 3,
-},
+    statPanel: {
+      flex: 1,
 
-challengeBadge: {
-  minWidth: 28,
-  height: 28,
-  paddingHorizontal: SPACING.xs,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: COLORS.accent,
-  borderRadius: RADII.pill,
-},
+      minHeight: 106,
 
-challengeBadgeText: {
-  ...TYPOGRAPHY.label,
-  color: COLORS.text,
-},
-settingsButton: {
-  minHeight: LAYOUT.minimumTouchTarget,
-  width: '100%',
-  marginTop: SPACING.lg,
-  paddingHorizontal: SPACING.lg,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: COLORS.glass,
-  borderRadius: RADII.medium,
-  borderWidth: 1,
-  borderColor: COLORS.muted,
-},
+      justifyContent: 'center',
 
-settingsButtonText: {
-  ...TYPOGRAPHY.label,
-  color: COLORS.text,
-  letterSpacing: 3,
-}, 
+      alignItems: 'center',
 
+      padding: SPACING.sm,
 
-});
+      backgroundColor:
+        COLORS.glass,
+
+      borderRadius:
+        RADII.medium,
+
+      borderWidth: 1,
+
+      borderColor:
+        'rgba(255,255,255,0.055)',
+    },
+
+    statIcon: {
+      color: COLORS.electric,
+
+      fontSize: 18,
+
+      lineHeight: 22,
+    },
+
+    statLabel: {
+      ...TYPOGRAPHY.label,
+
+      marginTop: SPACING.xs,
+
+      color: COLORS.muted,
+
+      fontSize: 8,
+
+      textAlign: 'center',
+
+      letterSpacing: 1.5,
+    },
+
+    statValue: {
+      ...TYPOGRAPHY.number,
+
+      marginTop: SPACING.xs,
+
+      color: COLORS.text,
+
+      fontSize: 28,
+    },
+
+    challengeButton: {
+      width: '100%',
+
+      minHeight:
+        LAYOUT.minimumTouchTarget,
+
+      marginTop: SPACING.lg,
+
+      paddingHorizontal:
+        SPACING.lg,
+
+      flexDirection: 'row',
+
+      justifyContent:
+        'space-between',
+
+      alignItems: 'center',
+
+      backgroundColor:
+        COLORS.glass,
+
+      borderRadius:
+        RADII.medium,
+
+      borderWidth: 1,
+
+      borderColor:
+        'rgba(255,45,85,0.55)',
+    },
+
+    challengeButtonText: {
+      ...TYPOGRAPHY.label,
+
+      color: COLORS.text,
+
+      letterSpacing: 3,
+    },
+
+    challengeBadge: {
+      minWidth: 28,
+      height: 28,
+
+      paddingHorizontal:
+        SPACING.xs,
+
+      justifyContent: 'center',
+      alignItems: 'center',
+
+      backgroundColor:
+        COLORS.accent,
+
+      borderRadius:
+        RADII.pill,
+    },
+
+    challengeBadgeText: {
+      ...TYPOGRAPHY.label,
+
+      color: COLORS.text,
+    },
+
+    settingsButton: {
+      width: '100%',
+
+      minHeight:
+        LAYOUT.minimumTouchTarget,
+
+      marginTop: SPACING.md,
+
+      paddingHorizontal:
+        SPACING.lg,
+
+      justifyContent: 'center',
+
+      alignItems: 'center',
+
+      backgroundColor:
+        COLORS.glass,
+
+      borderRadius:
+        RADII.medium,
+
+      borderWidth: 1,
+
+      borderColor:
+        'rgba(122,127,140,0.45)',
+    },
+
+    settingsButtonText: {
+      ...TYPOGRAPHY.label,
+
+      color: COLORS.text,
+
+      letterSpacing: 3,
+    },
+  });

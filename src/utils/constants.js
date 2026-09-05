@@ -17,7 +17,7 @@ export const LEVEL_THRESHOLDS = {
     easy: [1, 3],
     medium: [4, 10],
     hard: [11, 25],
-    impossible: [26, infinity],
+    impossible: [26, Infinity],
 };
 
 export const MONETISATION = {
