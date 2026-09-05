@@ -409,6 +409,10 @@ export default function GameScreen({
         safeZoneStartRef.current,
         levelConfig.safeZoneSize
       );
+setAttempts(
+  (currentAttempts) =>
+    currentAttempts + 1
+);
 
     if (success) {
   setNearMiss(false);

@@ -162,7 +162,7 @@ useEffect(() => {
         cx={center}
         cy={center}
         r={radius + 40}
-        fill="url(#arenaGlow)"git 
+        fill="url(#arenaGlow)"
       />
 
       <G opacity={0.16}>
