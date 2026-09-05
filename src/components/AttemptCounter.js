@@ -11,7 +11,7 @@ import {
   SPACING,
   TYPOGRAPHY,
 } from '../utils/theme';
-
+n
 
 const ATTEMPT_COLORS = {
   white: COLORS.text,
@@ -96,36 +96,49 @@ export default function AttemptCounter({
   );
 
   useEffect(() => {
-    translateY.setValue(-10);
-    opacity.setValue(0.45);
-    scale.setValue(1.08);
+  translateY.setValue(-10);
+  opacity.setValue(0.45);
+  scale.setValue(1.08);
 
-    Animated.parallel([
-      Animated.spring(translateY, {
+  Animated.parallel([
+    Animated.spring(
+      translateY,
+      {
         toValue: 0,
         friction: 5,
         tension: 120,
         useNativeDriver: true,
-      }),
+      }
+    ),
 
-      Animated.timing(opacity, {
+    Animated.timing(
+      opacity,
+      {
         toValue: 1,
         duration: 160,
         useNativeDriver: true,
-      }),
+      }
+    ),
 
-
-
-      Animated.spring(scale, {
+    Animated.spring(
+      scale,
+      {
         toValue: 1,
         friction: 4,
         tension: 140,
         useNativeDriver: true,
-      }),
+      }
+    ),
+  ]).start();
+}, [
+  attempts,
+  opacity,
+  scale,
+  translateY,
+]);
 
 useEffect(() => {
   hotPulse.stopAnimation();
-
   hotPulse.setValue(1);
 
   if (attempts < 200) {
@@ -139,11 +152,8 @@ useEffect(() => {
           hotPulse,
           {
             toValue: 1.12,
-
             duration: 420,
-
-            useNativeDriver:
-              true,
+            useNativeDriver: true,
           }
         ),
 
@@ -151,11 +161,8 @@ useEffect(() => {
           hotPulse,
           {
             toValue: 1,
-
             duration: 420,
-
-            useNativeDriver:
-              true,
+            useNativeDriver: true,
           }
         ),
       ])
@@ -169,15 +176,7 @@ useEffect(() => {
 }, [
   attempts,
   hotPulse,
-]),
-
-    ]).start();
-  }, [
-    attempts,
-    opacity,
-    scale,
-    translateY,
-  ]);
+]);
 
   const worldAverageText =
   typeof worldAverage ===

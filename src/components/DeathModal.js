@@ -240,17 +240,21 @@ const handleMilestonePress =
             style={styles.topLine}
           />
 
-          <Text
-            style={
-              nearMiss
-                ? styles.nearMissTitle
-                : styles.failTitle
-            }
-          >
-            {nearMiss
-              ? 'SO CLOSE!'
-              : 'FAIL'}
-          </Text>
+        <Text
+  style={styles.failTitle}
+>
+  FAIL
+</Text>
+
+{nearMiss && (
+  <Text
+    style={
+      styles.nearMissTitle
+    }
+  >
+    SO CLOSE!
+  </Text>
+)}
 
           <Text
             style={styles.message}
@@ -466,7 +470,8 @@ const styles =
 
     nearMissTitle: {
       ...TYPOGRAPHY.heading,
-
+    marginTop:
+    SPACING.sm,
       color:
         COLORS.warning,
 

@@ -1,4 +1,13 @@
 import {
+  useEffect,
+  useRef,
+} from 'react';
+
+import {
+  Animated,
+} from 'react-native';
+
+import {
   Circle,
   Defs,
   G,
@@ -9,6 +18,10 @@ import {
 } from 'react-native-svg';
 
 import { COLORS } from '../utils/constants';
+const AnimatedCircle =
+Animated.createAnimatedComponent(
+  Circle);
+
 
 function getArcValues(radius, angle) {
   const circumference =
@@ -29,7 +42,59 @@ export default function SafeZone({
   radius,
   safeStart,
   safeSize,
+  dangerPulse = false,
 }) {
+const dangerPulseOpacity =
+  useRef(
+    new Animated.Value(0.8)
+  ).current;
+
+useEffect(() => {
+  dangerPulseOpacity.stopAnimation();
+
+  dangerPulseOpacity.setValue(
+    0.8
+  );
+
+  if (!dangerPulse) {
+    return undefined;
+  }
+
+  const pulseAnimation =
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(
+          dangerPulseOpacity,
+          {
+            toValue: 0.25,
+            duration: 180,
+            useNativeDriver:
+              false,
+          }
+        ),
+
+        Animated.timing(
+          dangerPulseOpacity,
+          {
+            toValue: 1,
+            duration: 180,
+            useNativeDriver:
+              false,
+          }
+        ),
+      ])
+    );
+
+  pulseAnimation.start();
+
+  return () => {
+    pulseAnimation.stop();
+  };
+}, [
+  dangerPulse,
+  dangerPulseOpacity,
+]);
+
   const center = size / 2;
 
   const safeArc =
@@ -255,7 +320,9 @@ export default function SafeZone({
         transform={`rotate(${
           dangerStart - 90
         } ${center} ${center})`}
-        opacity={0.8}
+        opacity={
+          dangerPulseOpacity
+        }
       />
 
       <Circle

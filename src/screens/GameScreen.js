@@ -534,7 +534,7 @@ setResult('fail')
                 styles.arenaBackground
               }
             >
-              <text
+              <Text
               pointerEvents="none"
               style={
                 styles.levelWatermark
@@ -544,7 +544,7 @@ setResult('fail')
     2,
     '0'
   )}
-</text>
+</Text>
               <SafeZone
                 size={ARENA_SIZE}
                 radius={ARENA_RADIUS}
@@ -553,6 +553,9 @@ setResult('fail')
                 }
                 safeSize={
                   levelConfig.safeZoneSize
+                }
+                dangerPulse={
+                  result === 'fail'
                 }
               />
 
