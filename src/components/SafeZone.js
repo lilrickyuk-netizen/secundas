@@ -162,7 +162,7 @@ useEffect(() => {
         cx={center}
         cy={center}
         r={radius + 40}
-        fill="url(#arenaGlow)"
+        fill="url(#arenaGlow)"git 
       />
 
       <G opacity={0.16}>
@@ -305,7 +305,7 @@ useEffect(() => {
         } ${center} ${center})`}
       />
 
-      <Circle
+      <AnimatedCircle
         cx={center}
         cy={center}
         r={radius}
