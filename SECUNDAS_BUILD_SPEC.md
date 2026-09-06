@@ -1271,7 +1271,7 @@ The accepted speed-growth implementation may compound by level.
 
 ## Moving Safe Zone
 
-The green safe zone rotates continuously clockwise from Level 1.
+The green safe zone rotates continuously anti-clockwise from Level 1.
 
 Its rotation speed increases in discrete five-level tiers:
 
