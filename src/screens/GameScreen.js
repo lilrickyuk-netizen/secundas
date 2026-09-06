@@ -20,6 +20,7 @@ import {
 
 import AttemptCounter from '../components/AttemptCounter';
 import DeathModal from '../components/DeathModal';
+import SuccessModal from '../components/SuccessModal';
 import Indicator from '../components/Indicator';
 import SafeZone from '../components/SafeZone';
 
@@ -166,6 +167,11 @@ export default function GameScreen({
       nearMiss,
       setNearMiss,
  ] = useState(false);
+
+ const [
+  attemptPattern,
+  setAttemptPattern,
+ ] = useState([]);
 
   const levelConfig =
     useMemo(
@@ -409,6 +415,16 @@ export default function GameScreen({
         safeZoneStartRef.current,
         levelConfig.safeZoneSize
       );
+
+setAttemptPattern(
+  (currentPattern) => [
+    ...currentPattern,
+    success
+    ? 'success'
+    : 'fail',
+  ]
+);
+
 setAttempts(
   (currentAttempts) =>
     currentAttempts + 1
@@ -478,6 +494,8 @@ setResult('fail')
     setAttempts(
       START_ATTEMPTS
     );
+
+    setAttemptPattern([]);
 
     setLevel(
       (currentLevel) =>
@@ -622,30 +640,21 @@ setResult('fail')
             </>
           )}
 
-          {result === 'success' && (
-            <>
-              <Text
-                style={
-                  styles.successText
-                }
-              >
-                SUCCESS
-              </Text>
-
-              <Text
-                style={
-                  styles.actionText
-                }
-                onPress={
-                  handleContinue
-                }
-              >
-                TAP TO CONTINUE
-              </Text>
-            </>
-          )}
         </View>
       </View>
+
+<SuccessModal
+  visible={
+    result === 'success'
+  }
+  level={level}
+  attempts={attempts}
+  worldAverage={null}
+  pattern={attemptPattern}
+  onNextLevel={
+    handleContinue
+  }
+/>
 
 <DeathModal
 visible={result === 'fail'}
