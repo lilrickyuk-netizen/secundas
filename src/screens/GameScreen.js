@@ -432,11 +432,6 @@ setNearMiss(
   wasNearMiss
 );
 
-setAttempts(
-  (currentAttempts) =>
-    currentAttempts + 1
-);
-
 setResult('fail')
   };
 
