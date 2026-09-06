@@ -6,14 +6,14 @@ const LEVEL_FOUR_SAFE_PERCENT = 0.45;
 const SAFE_ZONE_SHRINK_RATE = 0.04;
 const MIN_SAFE_ARC_PIXELS = 30;
 
-const TUTORIAL_SPEED = 0.4;
-const LEVEL_FOUR_SPEED = 1;
-const SPEED_GROWTH_RATE = 0.06;
+const BASE_SPEED = 0.75;
+const SPEED_TIER_GROWTH = 0.20;
+const LEVELS_PER_SPEED_TIER = 5;
 
 const SAFE_ZONE_BASE_START = 300;
 
-const SAFE_ZONE_ROTATION_START_LEVEL = 10;
-const SAFE_ZONE_ROTATION_SPEED = 6;
+const SAFE_ZONE_ROTATION_BASE_SPEED = 6;
+const SAFE_ZONE_ROTATION_TIER_GROWTH = 0.20;
 
 const SPEED_PULSE_START_LEVEL = 25;
 const SPEED_PULSE_PERCENT = 0.15;
@@ -47,22 +47,38 @@ levelsAfterFour;
   );
 }
 
+function getDifficultyTier(level) {
+  return Math.floor(
+    (level - 1) /
+      LEVELS_PER_SPEED_TIER
+  );
+}
+
 function getSpeedMultiplier(level) {
-  if (level <= 3) {
-    return TUTORIAL_SPEED;
-  }
-
-  if (level === 4) {
-    return LEVEL_FOUR_SPEED;
-  }
-
-  const levelsAfterFour = level - 4;
+  const tier =
+    getDifficultyTier(level);
 
   return (
-    LEVEL_FOUR_SPEED *
+    BASE_SPEED *
     Math.pow(
-      1 + SPEED_GROWTH_RATE,
-      levelsAfterFour
+      1 + SPEED_TIER_GROWTH,
+      tier
+    )
+  );
+}
+
+function getSafeZoneRotationSpeed(
+  level
+) {
+  const tier =
+    getDifficultyTier(level);
+
+  return (
+    SAFE_ZONE_ROTATION_BASE_SPEED *
+    Math.pow(
+      1 +
+        SAFE_ZONE_ROTATION_TIER_GROWTH,
+      tier
     )
   );
 }
@@ -105,15 +121,12 @@ export function getLevelConfig(
     realGameBegins:
       safeLevel === 4,
 
-    rotatesSafeZone:
-      safeLevel >=
-      SAFE_ZONE_ROTATION_START_LEVEL,
+    rotatesSafeZone: true,
 
     safeZoneRotationSpeed:
-      safeLevel >=
-      SAFE_ZONE_ROTATION_START_LEVEL
-        ? SAFE_ZONE_ROTATION_SPEED
-        : 0,
+      getSafeZoneRotationSpeed(
+        safeLevel
+      ),
 
     pulsesSpeed:
       safeLevel >=

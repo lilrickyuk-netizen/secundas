@@ -7,6 +7,7 @@ import {
 
 import {
   Animated,
+  Easing,
   PanResponder,
   Pressable,
   StyleSheet,
@@ -218,9 +219,6 @@ export default function GameScreen({
   const orbitRunId =
     useRef(0);
 
-  const orbitStartTime =
-    useRef(0);
-
   const isRunning =
     useRef(false);
 
@@ -266,18 +264,11 @@ export default function GameScreen({
           if (
             levelConfig.rotatesSafeZone
           ) {
-            const elapsedSeconds =
-              (
-                Date.now() -
-                orbitStartTime.current
-              ) / 1000;
-
             const nextStart =
-              normalizeAngle(
-                levelConfig.safeZoneStart +
-                  elapsedSeconds *
-                    levelConfig.safeZoneRotationSpeed
-              );
+            normalizeAngle(
+              levelConfig.safeZoneStart -
+              angle
+            );
 
             const previousStart =
               safeZoneStartRef.current;
@@ -342,6 +333,7 @@ export default function GameScreen({
         {
           toValue: 1,
           duration,
+          easing: Easing.linear,
           useNativeDriver: false,
         }
       );
@@ -382,8 +374,6 @@ export default function GameScreen({
       levelConfig.safeZoneStart
     );
 
-    orbitStartTime.current =
-      Date.now();
 
     setResult(null);
     setNearMiss(false);

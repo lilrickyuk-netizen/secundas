@@ -1218,7 +1218,7 @@ Audio rules once audio phases are implemented:
 
 1. Tutorial levels.
 2. Safe zone is 80% of circle.
-3. Speed is 0.4x.
+3. Ball/orbit speed begins at the fast Level 1 baseline of 0.5x.
 4. Show gentle guidance.
 
 Tutorial guidance:
@@ -1259,13 +1259,32 @@ Formula:
 Do not multiply the prior level by `0.96`.
 
 1. Safe zone has minimum size equivalent of 30 px.
-2. Orbit speed increases by 6% per level.
+2. Ball/orbit speed increases in discrete five-level tiers.
+3. Levels 1–5 use the starting speed tier.
+4. Levels 6–10 use the next speed tier.
+5. Levels 11–15 increase again, continuing every five levels.
+6. Initial tier growth is 20% compounded per five-level tier and may be tuned through runtime playtesting.
 
 The accepted speed-growth implementation may compound by level.
 
 ## Level 10+
 
-Safe zone rotates slowly.
+## Moving Safe Zone
+
+The green safe zone rotates continuously clockwise from Level 1.
+
+Its rotation speed increases in discrete five-level tiers:
+
+- Levels 1–5: starting rotation tier.
+- Levels 6–10: faster rotation.
+- Levels 11–15: faster again.
+- Continue increasing every five levels.
+
+Initial safe-zone rotation growth is 20% compounded per five-level tier and may be tuned through runtime playtesting.
+
+At high levels, both the orbiting ball and the green safe zone move at high speed simultaneously. The player must time the intersection of two moving targets with a single tap.
+
+The existing safe-zone shrink curve and 30 px minimum safe-arc floor remain unchanged.
 
 ## Level 25+
 
