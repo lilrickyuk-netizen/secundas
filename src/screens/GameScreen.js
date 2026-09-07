@@ -35,6 +35,11 @@ import {
 } from '../utils/constants';
 
 import {
+  loadGameData,
+  recordLevelAttempt,
+} from '../utils/storage';
+
+import {
   LAYOUT,
   RADII,
   SPACING,
@@ -174,6 +179,11 @@ export default function GameScreen({
   setAttemptPattern,
  ] = useState([]);
 
+ const [
+  isHydrated,
+  setIsHydrated,
+ ] = useState(false);
+
   const levelConfig =
     useMemo(
       () =>
@@ -226,6 +236,79 @@ export default function GameScreen({
     useRef(
       levelConfig.safeZoneStart
     );
+
+    const attemptsRef =
+  useRef(
+    START_ATTEMPTS
+  );
+
+const attemptPatternRef =
+  useRef([]);
+
+useEffect(() => {
+  let isActive = true;
+
+  const hydrateProgress =
+    async () => {
+      const gameData =
+        await loadGameData();
+
+      if (!isActive) {
+        return;
+      }
+
+      const storedLevel =
+        gameData.currentLevel;
+
+      const levelKey =
+        `level_${storedLevel}`;
+
+      const storedLevelData =
+        gameData.levels[
+          levelKey
+        ];
+
+      const storedAttempts =
+        Number.isFinite(
+          storedLevelData?.attempts
+        )
+          ? storedLevelData.attempts
+          : START_ATTEMPTS;
+
+      const storedPattern =
+        Array.isArray(
+          storedLevelData?.pattern
+        )
+          ? storedLevelData.pattern
+          : [];
+
+      attemptsRef.current =
+        storedAttempts;
+
+      attemptPatternRef.current =
+        storedPattern;
+
+      setLevel(
+        storedLevel
+      );
+
+      setAttempts(
+        storedAttempts
+      );
+
+      setAttemptPattern(
+        storedPattern
+      );
+
+      setIsHydrated(true);
+    };
+
+  void hydrateProgress();
+
+  return () => {
+    isActive = false;
+  };
+}, []);
 
   useEffect(() => {
     const listenerId =
@@ -406,19 +489,39 @@ export default function GameScreen({
         levelConfig.safeZoneSize
       );
 
-setAttemptPattern(
-  (currentPattern) => [
-    ...currentPattern,
-    success
+const attemptResult =
+  success
     ? 'success'
-    : 'fail',
-  ]
-);
+    : 'fail';
+
+const nextAttempts =
+  attemptsRef.current + 1;
+
+const nextPattern = [
+  ...attemptPatternRef.current,
+  attemptResult,
+];
+
+attemptsRef.current =
+  nextAttempts;
+
+attemptPatternRef.current =
+  nextPattern;
 
 setAttempts(
-  (currentAttempts) =>
-    currentAttempts + 1
+  nextAttempts
 );
+
+setAttemptPattern(
+  nextPattern
+);
+
+void recordLevelAttempt({
+  level,
+  attempts: nextAttempts,
+  pattern: nextPattern,
+  success,
+});
 
     if (success) {
   setNearMiss(false);
@@ -442,16 +545,23 @@ setResult('fail')
   };
 
   useEffect(() => {
-    startOrbit();
+  if (!isHydrated) {
+    return;
+  }
 
-    return () => {
-      isRunning.current = false;
+  startOrbit();
 
-      orbitRunId.current += 1;
+  return () => {
+    isRunning.current = false;
 
-      orbitAnimation.current?.stop();
-    };
-  }, [level]);
+    orbitRunId.current += 1;
+
+    orbitAnimation.current?.stop();
+  };
+}, [
+  level,
+  isHydrated,
+]);
 
   const panResponder =
     useMemo(
@@ -480,6 +590,11 @@ setResult('fail')
     if (result !== 'success') {
       return;
     }
+attemptsRef.current =
+START_ATTEMPTS;
+
+attemptPatternRef.current =
+[];
 
     setAttempts(
       START_ATTEMPTS

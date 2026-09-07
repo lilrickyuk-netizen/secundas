@@ -1,4 +1,13 @@
 import {
+  useCallBack,
+  useState,
+} from 'react';
+
+import {
+  useFocusEffect,
+} from '@react-navigation/native';
+
+import {
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,6 +22,10 @@ import {
 import {
   COLORS,
 } from '../utils/constants';
+
+import {
+  loadGameData,
+} from '../utils/storage';
 
 import {
   LAYOUT,
@@ -34,6 +47,44 @@ function TrophyMark() {
 export default function HomeScreen({
   navigation,
 }) {
+ const [
+  gameStats,
+  setGameStats,
+] = useState({
+  totalAttempts: 0,
+  completedLevels: 0,
+});
+
+useFocusEffect(
+  useCallback(() => {
+    let isActive = true;
+
+    const refreshStats =
+      async () => {
+        const gameData =
+          await loadGameData();
+
+        if (!isActive) {
+          return;
+        }
+
+        setGameStats({
+          totalAttempts:
+            gameData.totalAttempts,
+
+          completedLevels:
+            gameData.completedLevels,
+        });
+      };
+
+    void refreshStats();
+
+    return () => {
+      isActive = false;
+    };
+  }, [])
+);
+
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView
@@ -171,7 +222,7 @@ export default function HomeScreen({
             <Text
               style={styles.statValue}
             >
-              0
+              {gameStats.totalAttempts}
             </Text>
           </View>
 
@@ -189,7 +240,7 @@ export default function HomeScreen({
             <Text
               style={styles.statValue}
             >
-              0
+              {gameStats.completedLevels}
             </Text>
           </View>
         </View>
