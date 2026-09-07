@@ -9,6 +9,7 @@
     "@react-navigation/stack": "^7.10.24",
     "expo": "~57.0.20",
     "expo-dev-client": "~57.0.18",
+    "expo-haptics": "~57.0.2",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
     "react-native": "0.86.3",

@@ -40,6 +40,13 @@ import {
 } from '../utils/storage';
 
 import {
+  playFailHaptic,
+  playLevelCompleteHaptic,
+  playNearMissHaptic,
+  playSuccessHaptic,
+} from '../utils/haptics';
+
+import {
   LAYOUT,
   RADII,
   SPACING,
@@ -245,6 +252,12 @@ export default function GameScreen({
 const attemptPatternRef =
   useRef([]);
 
+const hapticSettingsRef =
+  useRef({
+    enabled: true,
+    reducedIntensity: false,
+  });
+
 useEffect(() => {
   let isActive = true;
 
@@ -287,6 +300,17 @@ useEffect(() => {
 
       attemptPatternRef.current =
         storedPattern;
+
+hapticSettingsRef.current = {
+  enabled:
+    gameData.settings?.haptics !==
+    false,
+
+  reducedIntensity:
+    gameData.settings
+      ?.soundIntensity ===
+    'reduced',
+};
 
       setLevel(
         storedLevel
@@ -523,11 +547,22 @@ void recordLevelAttempt({
   success,
 });
 
-    if (success) {
+ if (success) {
+  const hapticOptions =
+    hapticSettingsRef.current;
+
+  void playSuccessHaptic(
+    hapticOptions
+  );
+
+  void playLevelCompleteHaptic(
+    hapticOptions
+  );
+
   setNearMiss(false);
   setResult('success');
   return;
-}
+}   
 
 const wasNearMiss =
   isNearSafeZoneEdge(
@@ -540,6 +575,19 @@ const wasNearMiss =
 setNearMiss(
   wasNearMiss
 );
+
+const hapticOptions =
+  hapticSettingsRef.current;
+
+if (wasNearMiss) {
+  void playNearMissHaptic(
+    hapticOptions
+  );
+} else {
+  void playFailHaptic(
+    hapticOptions
+  );
+}
 
 setResult('fail')
   };
