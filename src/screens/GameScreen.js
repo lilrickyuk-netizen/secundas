@@ -166,6 +166,7 @@ function isNearSafeZoneEdge(
 
 export default function GameScreen({
   navigation,
+  route,
 }) {
   const [level, setLevel] =
     useState(START_LEVEL);
@@ -270,30 +271,40 @@ useEffect(() => {
         return;
       }
 
-      const storedLevel =
-        gameData.currentLevel;
+      const startFresh =
+  route?.params?.mode ===
+  'new';
 
-      const levelKey =
-        `level_${storedLevel}`;
+const storedLevel =
+  startFresh
+    ? START_LEVEL
+    : gameData.currentLevel;
 
-      const storedLevelData =
-        gameData.levels[
-          levelKey
-        ];
+const levelKey =
+  `level_${storedLevel}`;
 
-      const storedAttempts =
-        Number.isFinite(
-          storedLevelData?.attempts
-        )
-          ? storedLevelData.attempts
-          : START_ATTEMPTS;
+const storedLevelData =
+  gameData.levels[
+    levelKey
+  ];
 
-      const storedPattern =
-        Array.isArray(
-          storedLevelData?.pattern
-        )
-          ? storedLevelData.pattern
-          : [];
+const storedAttempts =
+  startFresh
+    ? START_ATTEMPTS
+    : Number.isFinite(
+        storedLevelData?.attempts
+      )
+      ? storedLevelData.attempts
+      : START_ATTEMPTS;
+
+const storedPattern =
+  startFresh
+    ? []
+    : Array.isArray(
+        storedLevelData?.pattern
+      )
+      ? storedLevelData.pattern
+      : [];
 
       attemptsRef.current =
         storedAttempts;

@@ -122,7 +122,10 @@ useFocusEffect(
           style={styles.startButton}
           onPress={() =>
             navigation.navigate(
-              'Game'
+              'Game',
+              {
+                mode: 'new',
+              }
             )
           }
         >
@@ -139,7 +142,10 @@ useFocusEffect(
           style={styles.continueButton}
           onPress={() =>
             navigation.navigate(
-              'Game'
+              'Game',
+              {
+                mode: 'continue',
+              }
             )
           }
         >

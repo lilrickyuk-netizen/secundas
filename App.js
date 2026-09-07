@@ -1,3 +1,7 @@
+import {
+  useEffect,
+} from 'react';
+
 import { StatusBar } from
 'expo-status-bar';
 import {NavigationContainer} from '@react-navigation/native';
@@ -7,10 +11,20 @@ import HomeScreen from './src/screens/HomeScreen';
 import GameScreen from './src/screens/GameScreen';
 import ChallengeScreen from './src/screens/ChallengeScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
-
+import {
+  initializeSoundManager,
+  unloadSoundManager,
+} from './src/utils/sounds';
 const Stack = createStackNavigator();
 
 export default function App() {
+  useEffect(() => {
+  void initializeSoundManager();
+
+  return () => {
+    void unloadSoundManager();
+  };
+}, []);
   return (
     <SafeAreaProvider>
       <NavigationContainer>

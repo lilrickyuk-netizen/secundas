@@ -6,7 +6,19 @@
     "orientation": "portrait",
     "scheme": "secundas",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "dark", 
+    "plugins": [
+  [
+    "expo-audio",
+    {
+      "microphonePermission": false,
+      "recordAudioAndroid": false,
+      "enableBackgroundPlayback": false,
+      "enableBackgroundRecording": false
+    }
+  ]
+],
+
     "updates": {
       "enabled": true
     },
@@ -16,7 +28,10 @@
     "android": {
       "package": "com.secundas.game",
       "versionCode": 1,
-      "permissions":[],
+      "permissions": [],
+      "blockedPermissions": [
+        "android.permissions.RECORD_AUDIO"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#050507",
         "foregroundImage": "./assets/android-icon-foreground.png",
