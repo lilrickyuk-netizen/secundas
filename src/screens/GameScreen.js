@@ -47,6 +47,11 @@ import {
 } from '../utils/haptics';
 
 import {
+  playSound,
+  SOUND_KEYS,
+} from '../utils/sounds';
+
+import {
   LAYOUT,
   RADII,
   SPACING,
@@ -464,6 +469,17 @@ hapticSettingsRef.current = {
           runId ===
             orbitRunId.current
         ) {
+
+const shouldPulse =
+  duration >= 2500 ||
+  cycleIndex % 2 === 0;
+
+if (shouldPulse) {
+  void playSound(
+    SOUND_KEYS.ORBIT_PULSE
+  );
+}
+
           runOrbitCycle(
             cycleIndex + 1,
             runId
@@ -508,6 +524,10 @@ hapticSettingsRef.current = {
     if (!isRunning.current) {
       return;
     }
+
+void playSound(
+  SOUND_KEYS.TAP
+);
 
     isRunning.current = false;
     orbitRunId.current += 1;
@@ -559,6 +579,14 @@ void recordLevelAttempt({
 });
 
  if (success) {
+void playSound(
+  SOUND_KEYS.SUCCESS
+);
+
+void playSound(
+  SOUND_KEYS.LEVEL_COMPLETE
+);
+
   const hapticOptions =
     hapticSettingsRef.current;
 
@@ -591,10 +619,18 @@ const hapticOptions =
   hapticSettingsRef.current;
 
 if (wasNearMiss) {
+  void playSound(
+    SOUND_KEYS.NEAR_MISS
+  );
+
   void playNearMissHaptic(
     hapticOptions
   );
 } else {
+  void playSound(
+    SOUND_KEYS.FAIL
+  );
+
   void playFailHaptic(
     hapticOptions
   );
@@ -606,6 +642,14 @@ setResult('fail')
   useEffect(() => {
   if (!isHydrated) {
     return;
+  }
+
+  if (
+    levelConfig.realGameBegins
+  ) {
+    void playSound(
+      SOUND_KEYS.HARD_LEVEL
+    );
   }
 
   startOrbit();
