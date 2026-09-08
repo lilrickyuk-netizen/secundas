@@ -87,6 +87,9 @@ export default function SuccessModal({
   onShareVictory,
   onChallengeFriend,
   onNextLevel,
+  titleOverride = null,
+  nextLabel = 'NEXT LEVEL',
+
 }) {
   const opacity =
     useRef(

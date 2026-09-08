@@ -279,6 +279,131 @@ export function updateGameSettings(
   );
 }
 
+export function ensureDailyChallenge(
+  dailyChallenge
+) {
+  return updateGameData(
+    (gameData) => {
+      const alreadyExists =
+        gameData.dailyHistory.some(
+          (entry) =>
+            entry.date ===
+            dailyChallenge.date
+        );
+
+      if (alreadyExists) {
+        return gameData;
+      }
+
+      return {
+        ...gameData,
+
+        dailyHistory: [
+          ...gameData.dailyHistory,
+
+          {
+            date:
+              dailyChallenge.date,
+
+            seed:
+              dailyChallenge.seed,
+
+            level:
+              dailyChallenge.level,
+
+            completed: false,
+
+            attempts: 0,
+
+            pattern: [],
+
+            synced: false,
+          },
+        ],
+      };
+    }
+  );
+}
+
+export function recordDailyAttempt({
+  date,
+  seed,
+  level,
+  attempts,
+  pattern,
+  success,
+}) {
+  return updateGameData(
+    (gameData) => {
+      const entryIndex =
+        gameData.dailyHistory
+          .findIndex(
+            (entry) =>
+              entry.date === date
+          );
+
+      const previousEntry =
+        entryIndex >= 0
+          ? gameData.dailyHistory[
+              entryIndex
+            ]
+          : {
+              date,
+              seed,
+              level,
+              completed: false,
+              attempts: 0,
+              pattern: [],
+              synced: false,
+            };
+
+      const nextEntry = {
+        ...previousEntry,
+
+        date,
+        seed,
+        level,
+        attempts,
+
+        completed:
+          previousEntry.completed ===
+            true ||
+          success,
+
+        pattern: [
+          ...pattern,
+        ],
+
+        synced: false,
+      };
+
+      const nextDailyHistory =
+        entryIndex >= 0
+          ? gameData.dailyHistory.map(
+              (entry, index) =>
+                index === entryIndex
+                  ? nextEntry
+                  : entry
+            )
+          : [
+              ...gameData.dailyHistory,
+              nextEntry,
+            ];
+
+      return {
+        ...gameData,
+
+        totalAttempts:
+          gameData.totalAttempts + 1,
+
+        dailyHistory:
+          nextDailyHistory,
+      };
+    }
+  );
+}
+
+
 export function recordLevelAttempt({
   level,
   attempts,

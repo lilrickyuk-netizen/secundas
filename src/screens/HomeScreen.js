@@ -24,8 +24,19 @@ import {
 } from '../utils/constants';
 
 import {
+  ensureDailyChallenge,
   loadGameData,
 } from '../utils/storage';
+
+import {
+  createDailyChallenge,
+  getDailySeed,
+} from '../utils/dailyChallenge';
+
+import {
+  playSound,
+  SOUND_KEYS,
+} from '../utils/sounds';
 
 import {
   LAYOUT,
@@ -55,14 +66,50 @@ export default function HomeScreen({
   completedLevels: 0,
 });
 
+const [
+  dailyChallenge,
+  setDailyChallenge,
+] = useState(null);
+
 useFocusEffect(
   useCallback(() => {
     let isActive = true;
 
-    const refreshStats =
+    const refreshHomeData =
       async () => {
         const gameData =
           await loadGameData();
+
+        const todaySeed =
+          getDailySeed();
+
+        const generatedDaily =
+          createDailyChallenge(
+            todaySeed
+          );
+
+        let savedDaily =
+          gameData.dailyHistory.find(
+            (entry) =>
+              entry.date ===
+              todaySeed
+          );
+
+        if (!savedDaily) {
+          const updatedGameData =
+            await ensureDailyChallenge(
+              generatedDaily
+            );
+
+          savedDaily =
+            updatedGameData
+              ?.dailyHistory
+              ?.find(
+                (entry) =>
+                  entry.date ===
+                  todaySeed
+              );
+        }
 
         if (!isActive) {
           return;
@@ -75,15 +122,48 @@ useFocusEffect(
           completedLevels:
             gameData.completedLevels,
         });
+
+        setDailyChallenge(
+          savedDaily ?? {
+            ...generatedDaily,
+            completed: false,
+            attempts: 0,
+            pattern: [],
+            synced: false,
+          }
+        );
       };
 
-    void refreshStats();
+    void refreshHomeData();
 
     return () => {
       isActive = false;
     };
   }, [])
 );
+
+const handleDailyChallenge =
+  () => {
+    if (
+      !dailyChallenge ||
+      dailyChallenge.completed
+    ) {
+      return;
+    }
+
+    void playSound(
+      SOUND_KEYS.DAILY_OPEN
+    );
+
+    navigation.navigate(
+      'Game',
+      {
+        mode: 'daily',
+
+        dailyChallenge,
+      }
+    );
+  };
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -158,7 +238,16 @@ useFocusEffect(
           </Text>
         </Pressable>
 
-        <View style={styles.dailyCard}>
+        <Pressable
+  style={styles.dailyCard}
+  onPress={
+    handleDailyChallenge
+  }
+  disabled={
+    !dailyChallenge ||
+    dailyChallenge.completed
+  }
+>
           <View style={styles.dailyHeader}>
             <View
               style={
@@ -184,6 +273,17 @@ useFocusEffect(
                   TODAY'S TIMING
                   CHALLENGE
                 </Text>
+
+<Text
+  style={styles.dailyText}
+>
+  {dailyChallenge
+    ? dailyChallenge.completed
+      ? `${dailyChallenge.seed} // COMPLETE // ${dailyChallenge.attempts} ATTEMPTS`
+      : `${dailyChallenge.seed} // ${dailyChallenge.attempts} ATTEMPTS`
+    : 'PREPARING DAILY...'}
+</Text>
+
               </View>
             </View>
 
@@ -193,7 +293,7 @@ useFocusEffect(
               TODAY
             </Text>
           </View>
-        </View>
+        </Pressable>
 
         <View style={styles.statsRow}>
           <View style={styles.statPanel}>

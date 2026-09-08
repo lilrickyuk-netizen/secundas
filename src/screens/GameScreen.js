@@ -36,6 +36,7 @@ import {
 
 import {
   loadGameData,
+  recordDailyAttempt,
   recordLevelAttempt,
   updateGameSettings,
 } from '../utils/storage';
@@ -175,6 +176,16 @@ export default function GameScreen({
   navigation,
   route,
 }) {
+const dailyChallenge =
+  route?.params?.mode ===
+  'daily'
+    ? route?.params
+        ?.dailyChallenge ?? null
+    : null;
+
+const isDailyChallenge =
+  dailyChallenge !== null;
+
   const [level, setLevel] =
     useState(START_LEVEL);
 
@@ -287,10 +298,21 @@ useEffect(() => {
   route?.params?.mode ===
   'new';
 
+const storedDaily =
+  isDailyChallenge
+    ? gameData.dailyHistory.find(
+        (entry) =>
+          entry.date ===
+          dailyChallenge.date
+      )
+    : null;
+
 const storedLevel =
-  startFresh
-    ? START_LEVEL
-    : gameData.currentLevel;
+  isDailyChallenge
+    ? dailyChallenge.level
+    : startFresh
+      ? START_LEVEL
+      : gameData.currentLevel;
 
 const levelKey =
   `level_${storedLevel}`;
@@ -301,22 +323,34 @@ const storedLevelData =
   ];
 
 const storedAttempts =
-  startFresh
-    ? START_ATTEMPTS
-    : Number.isFinite(
-        storedLevelData?.attempts
+  isDailyChallenge
+    ? Number.isFinite(
+        storedDaily?.attempts
       )
-      ? storedLevelData.attempts
-      : START_ATTEMPTS;
+      ? storedDaily.attempts
+      : START_ATTEMPTS
+    : startFresh
+      ? START_ATTEMPTS
+      : Number.isFinite(
+          storedLevelData?.attempts
+        )
+        ? storedLevelData.attempts
+        : START_ATTEMPTS;
 
 const storedPattern =
-  startFresh
-    ? []
-    : Array.isArray(
-        storedLevelData?.pattern
+  isDailyChallenge
+    ? Array.isArray(
+        storedDaily?.pattern
       )
-      ? storedLevelData.pattern
-      : [];
+      ? storedDaily.pattern
+      : []
+    : startFresh
+      ? []
+      : Array.isArray(
+          storedLevelData?.pattern
+        )
+        ? storedLevelData.pattern
+        : [];
 
       attemptsRef.current =
         storedAttempts;
@@ -583,12 +617,37 @@ setAttemptPattern(
   nextPattern
 );
 
-void recordLevelAttempt({
-  level,
-  attempts: nextAttempts,
-  pattern: nextPattern,
-  success,
-});
+if (isDailyChallenge) {
+  void recordDailyAttempt({
+    date:
+      dailyChallenge.date,
+
+    seed:
+      dailyChallenge.seed,
+
+    level,
+
+    attempts:
+      nextAttempts,
+
+    pattern:
+      nextPattern,
+
+    success,
+  });
+} else {
+  void recordLevelAttempt({
+    level,
+
+    attempts:
+      nextAttempts,
+
+    pattern:
+      nextPattern,
+
+    success,
+  });
+}
 
  if (success) {
 void playSound(
@@ -705,6 +764,12 @@ setResult('fail')
     if (result !== 'success') {
       return;
     }
+
+if (isDailyChallenge) {
+  navigation.goBack();
+  return;
+}
+
 attemptsRef.current =
 START_ATTEMPTS;
 
@@ -751,12 +816,12 @@ const handleMute = () => {
         <View style={styles.topHud}>
           <View style={styles.levelBlock}>
             <Text style={styles.levelText}>
-              LEVEL{' '}
-              {String(level).padStart(
-                2,
-                '0'
-              )}
-            </Text>
+  {isDailyChallenge
+    ? 'DAILY'
+    : `LEVEL ${String(
+        level
+      ).padStart(2, '0')}`}
+</Text>
 
             <View style={styles.levelLine}>
               <View
@@ -888,6 +953,19 @@ const handleMute = () => {
   attempts={attempts}
   worldAverage={null}
   pattern={attemptPattern}
+
+titleOverride={
+  isDailyChallenge
+    ? 'DAILY CHALLENGE COMPLETE'
+    : null
+}
+
+nextLabel={
+  isDailyChallenge
+    ? 'BACK HOME'
+    : 'NEXT LEVEL'
+}
+
   onNextLevel={
     handleContinue
   }
