@@ -325,8 +325,8 @@ export default function SuccessModal({
 
           <Text
             style={styles.title}
-          >
-            LEVEL {level} COMPLETE
+          >{titleOverride ??
+            `LEVEL {level} COMPLETE`} 
           </Text>
 
           {achievement && (
@@ -430,7 +430,7 @@ export default function SuccessModal({
                 styles.nextButtonText
               }
             >
-              NEXT LEVEL
+              {nextLabel}
             </Text>
           </Pressable>
 
