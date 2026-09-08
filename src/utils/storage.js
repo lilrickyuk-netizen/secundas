@@ -264,6 +264,21 @@ export function updateGameData(
   return gameDataUpdateQueue;
 }
 
+export function updateGameSettings(
+  settingsUpdate
+) {
+  return updateGameData(
+    (gameData) => ({
+      ...gameData,
+
+      settings: {
+        ...gameData.settings,
+        ...settingsUpdate,
+      },
+    })
+  );
+}
+
 export function recordLevelAttempt({
   level,
   attempts,

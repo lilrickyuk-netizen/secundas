@@ -37,6 +37,7 @@ import {
 import {
   loadGameData,
   recordLevelAttempt,
+  updateGameSettings,
 } from '../utils/storage';
 
 import {
@@ -48,6 +49,7 @@ import {
 
 import {
   playSound,
+  setSoundSettings,
   SOUND_KEYS,
 } from '../utils/sounds';
 
@@ -197,6 +199,11 @@ export default function GameScreen({
   setIsHydrated,
  ] = useState(false);
 
+ const [
+  isMuted,
+  setIsMuted,
+ ] = useState(false);
+
   const levelConfig =
     useMemo(
       () =>
@@ -327,6 +334,11 @@ hapticSettingsRef.current = {
       ?.soundIntensity ===
     'reduced',
 };
+
+setIsMuted(
+  gameData.settings?.muted ===
+true
+);
 
       setLevel(
         storedLevel
@@ -711,6 +723,23 @@ attemptPatternRef.current =
     );
   };
 
+const handleMute = () => {
+  const nextMuted =
+    !isMuted;
+
+  setIsMuted(
+    nextMuted
+  );
+
+  setSoundSettings({
+    muted: nextMuted,
+  });
+
+  void updateGameSettings({
+    muted: nextMuted,
+  });
+};
+
   return (
     <SafeAreaView
       style={styles.screen}
@@ -877,6 +906,7 @@ onDismiss={handleRetry}
       >
         <Pressable
           style={styles.controlButton}
+          onPress={handleMute}
         >
           <Text
             style={styles.controlIcon}
@@ -887,7 +917,10 @@ onDismiss={handleRetry}
           <Text
             style={styles.controlText}
           >
-            MUTE
+            {isMuted
+            ? 'UNMUTE'
+            : 'MUTE'
+          }
           </Text>
         </Pressable>
 
