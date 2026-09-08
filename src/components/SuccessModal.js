@@ -326,7 +326,7 @@ export default function SuccessModal({
           <Text
             style={styles.title}
           >{titleOverride ??
-            `LEVEL {level} COMPLETE`} 
+            `LEVEL ${level} COMPLETE`} 
           </Text>
 
           {achievement && (
