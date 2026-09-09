@@ -33,6 +33,9 @@ import {
   getDailySeed,
 } from '../utils/dailyChallenge';
 
+import DailyTimer from 
+'../components/DailyTimer';
+
 import {
   playSound,
   SOUND_KEYS,
@@ -293,6 +296,9 @@ const handleDailyChallenge =
               TODAY
             </Text>
           </View>
+
+<DailyTimer />
+
         </Pressable>
 
         <View style={styles.statsRow}>
