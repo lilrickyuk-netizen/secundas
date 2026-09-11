@@ -27,6 +27,34 @@ const VALID_TYPES =
     'daily',
   ]);
 
+const GRID_LINES = [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+];
+
+function getAccentColor(
+  type
+) {
+  if (type === 'fail') {
+    return COLORS.fail;
+  }
+
+  if (type === 'challenge') {
+    return COLORS.electric;
+  }
+
+  if (type === 'daily') {
+    return COLORS.accent;
+  }
+
+  return COLORS.success;
+}
+
 function getPatternText(
   pattern
 ) {
@@ -158,6 +186,11 @@ const ShareCard =
           ? type
           : 'success';
 
+          const accentColor =
+  getAccentColor(
+    safeType
+  );
+
       const copy =
         getCardCopy({
           type: safeType,
@@ -170,92 +203,191 @@ const ShareCard =
           pattern
         );
 
-      return (
-        <View
-          ref={ref}
-          collapsable={false}
-          style={styles.card}
-        >
-          <Text
-            style={
-              styles.brand
-            }
-          >
-            SECUNDAS
-          </Text>
+        return (
+  <View
+    ref={ref}
+    collapsable={false}
+    style={[
+      styles.card,
+      {
+        borderColor:
+          accentColor,
 
-          <Text
-            style={
-              styles.headline
-            }
-          >
-            {copy.headline}
-          </Text>
+        shadowColor:
+          accentColor,
+      },
+    ]}
+  >
+    <View
+      pointerEvents="none"
+      style={styles.glassWash}
+    />
 
-          <Text
-            style={
-              styles.attempts
-            }
-          >
-            {safeAttempts}
-          </Text>
+    <View
+      pointerEvents="none"
+      style={[
+        styles.ambientGlow,
+        {
+          backgroundColor:
+            accentColor,
+        },
+      ]}
+    />
 
-          <Text
-            style={
-              styles.attemptLabel
-            }
-          >
-            ATTEMPTS
-          </Text>
-
-          <Text
-            style={
-              styles.context
-            }
-          >
-            {copy.context}
-          </Text>
-
-          <Text
-            style={
-              styles.pattern
-            }
-          >
-            {patternText ||
-              '—'}
-          </Text>
-
-          <Text
-            style={
-              styles.message
-            }
-          >
-            {copy.message}
-          </Text>
-
+    <View
+      pointerEvents="none"
+      style={styles.grid}
+    >
+      {GRID_LINES.map(
+        (line) => (
           <View
-            style={
-              styles.footer
-            }
-          >
-            <Text
-              style={
-                styles.link
-              }
-            >
-              {link}
-            </Text>
+            key={`vertical-${line}`}
+            style={[
+              styles.gridVertical,
+              {
+                left:
+                  `${line * 12.5}%`,
+              },
+            ]}
+          />
+        )
+      )}
 
-            <Text
-              style={
-                styles.tapToPlay
-              }
-            >
-              TAP TO PLAY
-            </Text>
-          </View>
-        </View>
-      );
+      {GRID_LINES.map(
+        (line) => (
+          <View
+            key={`horizontal-${line}`}
+            style={[
+              styles.gridHorizontal,
+              {
+                top:
+                  `${line * 12.5}%`,
+              },
+            ]}
+          />
+        )
+      )}
+    </View>
+
+    <View
+      pointerEvents="none"
+      style={[
+        styles.innerBorder,
+        {
+          borderColor:
+            accentColor,
+        },
+      ]}
+    />
+
+    <View style={styles.topSection}>
+      <Text
+        style={[
+          styles.brand,
+          {
+            color:
+              accentColor,
+          },
+        ]}
+      >
+        SECUNDAS
+      </Text>
+
+      <View
+        style={[
+          styles.brandRule,
+          {
+            backgroundColor:
+              accentColor,
+          },
+        ]}
+      />
+    </View>
+
+    <View style={styles.scoreSection}>
+      <View
+        pointerEvents="none"
+        style={[
+          styles.scoreGlow,
+          {
+            backgroundColor:
+              accentColor,
+          },
+        ]}
+      />
+
+      <Text
+        style={[
+          styles.attempts,
+          {
+            color:
+              accentColor,
+
+            textShadowColor:
+              accentColor,
+          },
+        ]}
+      >
+        {safeAttempts}
+      </Text>
+
+      <Text style={styles.attemptLabel}>
+        ATTEMPTS
+      </Text>
+
+      <Text style={styles.headline}>
+        {copy.headline}
+      </Text>
+
+      <Text style={styles.context}>
+        {copy.context}
+      </Text>
+    </View>
+
+    <View style={styles.patternPanel}>
+      <Text style={styles.patternLabel}>
+        ATTEMPT PATTERN
+      </Text>
+
+      <Text style={styles.pattern}>
+        {patternText || '—'}
+      </Text>
+    </View>
+
+    <Text
+      style={[
+        styles.message,
+        {
+          color:
+            accentColor,
+        },
+      ]}
+    >
+      {copy.message}
+    </Text>
+
+    <View style={styles.footer}>
+      <View
+        style={[
+          styles.footerRule,
+          {
+            backgroundColor:
+              accentColor,
+          },
+        ]}
+      />
+
+      <Text style={styles.link}>
+        {link}
+      </Text>
+
+      <Text style={styles.tapToPlay}>
+        TAP TO PLAY
+      </Text>
+    </View>
+  </View>
+);
+
     }
   );
 
@@ -267,120 +399,280 @@ const styles =
       width: 320,
       height: 400,
 
-      padding:
+      paddingHorizontal:
         SPACING.xl,
+
+      paddingVertical:
+        SPACING.lg,
 
       justifyContent:
         'space-between',
 
       backgroundColor:
-        COLORS.background,
+        'rgba(5,5,7,0.98)',
+
+      borderWidth: 1.5,
+      borderRadius: 22,
+
+      overflow: 'hidden',
+
+      shadowOpacity: 0.4,
+      shadowRadius: 18,
+
+      shadowOffset: {
+        width: 0,
+        height: 0,
+      },
+
+      elevation: 12,
+    },
+
+    glassWash: {
+      ...StyleSheet.absoluteFillObject,
+
+      backgroundColor:
+        'rgba(255,255,255,0.025)',
+    },
+
+    ambientGlow: {
+      position: 'absolute',
+
+      top: 82,
+      left: 40,
+
+      width: 240,
+      height: 170,
+
+      borderRadius: 120,
+
+      opacity: 0.055,
+    },
+
+    grid: {
+      ...StyleSheet.absoluteFillObject,
+
+      opacity: 0.16,
+    },
+
+    gridVertical: {
+      position: 'absolute',
+
+      top: 0,
+      bottom: 0,
+
+      width: 1,
+
+      backgroundColor:
+        'rgba(0,209,255,0.18)',
+    },
+
+    gridHorizontal: {
+      position: 'absolute',
+
+      left: 0,
+      right: 0,
+
+      height: 1,
+
+      backgroundColor:
+        'rgba(255,45,85,0.12)',
+    },
+
+    innerBorder: {
+      ...StyleSheet.absoluteFillObject,
+
+      margin: 5,
 
       borderWidth: 1,
+      borderRadius: 18,
 
-      borderColor:
-        COLORS.electric,
+      opacity: 0.22,
+    },
+
+    topSection: {
+      alignItems: 'center',
     },
 
     brand: {
       ...TYPOGRAPHY.label,
 
-      color:
-        COLORS.text,
+      fontSize: 12,
+      fontWeight: '900',
 
-      textAlign:
-        'center',
+      letterSpacing: 6,
 
+      textAlign: 'center',
+    },
+
+    brandRule: {
+      width: 56,
+      height: 2,
+
+      marginTop:
+        SPACING.sm,
+
+      opacity: 0.85,
+    },
+
+    scoreSection: {
+      position: 'relative',
+
+      width: '100%',
+
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
+    scoreGlow: {
+      position: 'absolute',
+
+      width: 220,
+      height: 145,
+
+      borderRadius: 110,
+
+      opacity: 0.06,
+    },
+
+    attempts: {
+      ...TYPOGRAPHY.number,
+
+      fontSize: 88,
+      lineHeight: 94,
+
+      fontWeight: '900',
+
+      textAlign: 'center',
+
+      letterSpacing: 3,
+
+      textShadowOffset: {
+        width: 0,
+        height: 0,
+      },
+
+      textShadowRadius: 16,
+    },
+
+    attemptLabel: {
+      ...TYPOGRAPHY.label,
+
+      color: COLORS.text,
+
+      marginTop: -4,
+
+      textAlign: 'center',
+
+      fontSize: 10,
       letterSpacing: 5,
     },
 
     headline: {
       ...TYPOGRAPHY.heading,
 
-      color:
-        COLORS.text,
+      color: COLORS.text,
 
-      textAlign:
-        'center',
+      marginTop:
+        SPACING.sm,
 
-      fontSize: 20,
+      textAlign: 'center',
 
-      letterSpacing: 2,
-    },
+      fontSize: 18,
+      lineHeight: 23,
 
-    attempts: {
-      ...TYPOGRAPHY.number,
-
-      color:
-        COLORS.accent,
-
-      textAlign:
-        'center',
-
-      fontSize: 76,
-    },
-
-    attemptLabel: {
-      ...TYPOGRAPHY.label,
-
-      color:
-        COLORS.text,
-
-      textAlign:
-        'center',
-
-      letterSpacing: 5,
+      letterSpacing: 2.5,
     },
 
     context: {
       ...TYPOGRAPHY.label,
 
-      color:
-        COLORS.muted,
+      color: COLORS.muted,
 
-      textAlign:
-        'center',
+      marginTop:
+        SPACING.xs,
 
+      textAlign: 'center',
+
+      fontSize: 8,
       letterSpacing: 2,
     },
 
+    patternPanel: {
+      width: '100%',
+
+      paddingVertical:
+        SPACING.sm,
+
+      paddingHorizontal:
+        SPACING.sm,
+
+      backgroundColor:
+        'rgba(255,255,255,0.035)',
+
+      borderWidth: 1,
+
+      borderColor:
+        'rgba(0,209,255,0.16)',
+
+      borderRadius: 12,
+
+      alignItems: 'center',
+    },
+
+    patternLabel: {
+      ...TYPOGRAPHY.label,
+
+      color: COLORS.muted,
+
+      fontSize: 7,
+
+      letterSpacing: 2.5,
+    },
+
     pattern: {
-      color:
-        COLORS.text,
+      marginTop:
+        SPACING.xs,
 
-      textAlign:
-        'center',
+      color: COLORS.text,
 
-      fontSize: 18,
+      textAlign: 'center',
 
-      lineHeight: 26,
+      fontSize: 16,
+      lineHeight: 22,
     },
 
     message: {
       ...TYPOGRAPHY.label,
 
-      color:
-        COLORS.electric,
+      textAlign: 'center',
 
-      textAlign:
-        'center',
+      fontSize: 10,
 
-      letterSpacing: 2,
+      letterSpacing: 2.5,
     },
 
     footer: {
-      alignItems:
-        'center',
+      width: '100%',
 
-      gap:
+      alignItems: 'center',
+
+      gap: SPACING.xs,
+    },
+
+    footerRule: {
+      width: '72%',
+      height: 1,
+
+      marginBottom:
         SPACING.xs,
+
+      opacity: 0.5,
     },
 
     link: {
       ...TYPOGRAPHY.label,
 
-      color:
-        COLORS.text,
+      color: COLORS.text,
 
       fontSize: 8,
 
@@ -390,8 +682,7 @@ const styles =
     tapToPlay: {
       ...TYPOGRAPHY.label,
 
-      color:
-        COLORS.muted,
+      color: COLORS.muted,
 
       fontSize: 7,
 
