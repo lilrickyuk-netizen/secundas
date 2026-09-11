@@ -19,6 +19,17 @@ import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
 
+import * as Clipboard
+  from 'expo-clipboard';
+
+import * as Sharing
+  from 'expo-sharing';
+
+import {
+  captureRef,
+  releaseCapture,
+} from 'react-native-view-shot';
+
 import AttemptCounter from '../components/AttemptCounter';
 import DeathModal from '../components/DeathModal';
 import SuccessModal from '../components/SuccessModal';
@@ -290,6 +301,9 @@ const hapticSettingsRef =
 
   const shareCardRef =
   useRef(null);
+
+const isSharingRef =
+  useRef(false);
 
 useEffect(() => {
   let isActive = true;
@@ -666,7 +680,7 @@ if (isDailyChallenge) {
       dailyChallenge.date
     );
   }
-  
+
 void playSound(
 SOUND_KEYS.SUCCESS
 );
@@ -799,11 +813,99 @@ attemptPatternRef.current =
 
     setAttemptPattern([]);
 
-    setLevel(
-      (currentLevel) =>
-        currentLevel + 1
-    );
+  setLevel(
+  (currentLevel) =>
+    currentLevel + 1
+);
+};
+
+const shareLink =
+  'https://secundas.app';
+
+const shareText =
+  isDailyChallenge
+    ? `I completed today's Secundas Daily Challenge in ${attempts} attempts. Think you can do better? ${shareLink}`
+    : `I spent ${attempts} attempts on Level ${level} in Secundas. Think you can do better? ${shareLink}`;
+
+const handleShareCard =
+  async () => {
+    if (
+      isSharingRef.current ||
+      !shareCardRef.current
+    ) {
+      return;
+    }
+
+    isSharingRef.current =
+      true;
+
+    let capturedUri =
+      null;
+
+    try {
+      const sharingAvailable =
+        await Sharing
+          .isAvailableAsync();
+
+      await Clipboard
+        .setStringAsync(
+          shareText
+        );
+
+      if (
+        !sharingAvailable
+      ) {
+        console.warn(
+          'System sharing is unavailable. Share text copied to clipboard.'
+        );
+
+        return;
+      }
+
+      capturedUri =
+        await captureRef(
+          shareCardRef.current,
+          {
+            format: 'png',
+            quality: 1,
+            result: 'tmpfile',
+          }
+        );
+
+      await playSound(
+        SOUND_KEYS.SHARE_READY
+      );
+
+      await Sharing.shareAsync(
+        capturedUri,
+        {
+          mimeType:
+            'image/png',
+
+          dialogTitle:
+            'Share Secundas',
+
+          UTI:
+            'public.png',
+        }
+      );
+    } catch (error) {
+      console.warn(
+        'Share card failed:',
+        error
+      );
+    } finally {
+      if (capturedUri) {
+        releaseCapture(
+          capturedUri
+        );
+      }
+
+      isSharingRef.current =
+        false;
+    }
   };
+
 
 const handleMute = () => {
   const nextMuted =
@@ -961,7 +1063,14 @@ const handleMute = () => {
 
         </View>
       </View>
-{result === 'success' && (
+{(
+  result === 'success' ||
+  (
+    result === 'fail' &&
+    attempts >= 10
+  )
+) && (
+
   <View
     pointerEvents="none"
     style={
@@ -975,16 +1084,21 @@ const handleMute = () => {
       pattern={
         attemptPattern
       }
+      
       type={
-        isDailyChallenge
-          ? 'daily'
-          : 'success'
-      }
+  result === 'fail'
+    ? 'fail'
+    : isDailyChallenge
+      ? 'daily'
+      : 'success'
+}
+
       date={
         isDailyChallenge
           ? dailyChallenge.date
           : null
       }
+      link ={shareLink}
     />
   </View>
 )}
@@ -1010,6 +1124,10 @@ nextLabel={
     : 'NEXT LEVEL'
 }
 
+onShareVictory={
+  handleShareCard
+}
+
   onNextLevel={
     handleContinue
   }
@@ -1021,6 +1139,9 @@ attempts={attempts}
 level={level}
 nearMiss={nearMiss}
 onDismiss={handleRetry}
+onShareSuffering={
+    handleShareCard
+  }
 /> 
 
       <View

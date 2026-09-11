@@ -186,16 +186,18 @@ const milestoneAction =
       : null;
 
 const handleMilestonePress =
-  (event) => {
+  async (event) => {
     event.stopPropagation();
 
     if (!milestoneAction) {
       return;
     }
 
+    await milestoneAction();
+
     onDismiss?.();
-    milestoneAction();
   };
+  
   return (
     <Modal
       transparent
