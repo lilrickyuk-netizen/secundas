@@ -6,19 +6,20 @@
     "orientation": "portrait",
     "scheme": "secundas",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark", 
+    "userInterfaceStyle": "dark",
     "plugins": [
-  [
-    "expo-audio",
-    {
-      "microphonePermission": false,
-      "recordAudioAndroid": false,
-      "enableBackgroundPlayback": false,
-      "enableBackgroundRecording": false
-    }
-  ]
-],
-
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false,
+          "enableBackgroundRecording": false
+        }
+      ],
+      "expo-notifications",
+      "expo-sharing"
+    ],
     "updates": {
       "enabled": true
     },

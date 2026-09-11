@@ -55,6 +55,10 @@ import {
   SOUND_KEYS,
 } from '../utils/sounds';
 
+import{
+  cancelDailyReminder,
+} from '../services/notifications';
+
 
 import {
   LAYOUT,
@@ -655,6 +659,14 @@ if (isDailyChallenge) {
 }
 
  if (success) {
+  if (
+    isDailyChallenge
+  ) {
+    void cancelDailyReminder(
+      dailyChallenge.date
+    );
+  }
+  
 void playSound(
 SOUND_KEYS.SUCCESS
 );

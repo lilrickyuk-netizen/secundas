@@ -43,6 +43,10 @@ import {
   SOUND_KEYS,
 } from '../utils/sounds';
 
+import{
+  syncDailyNotifications,
+} from '../services/notifications';
+
 
 import {
   LAYOUT,
@@ -161,6 +165,17 @@ const yesterdayDailyResult =
         setYesterdayResult(
           yesterdayDailyResult
         );
+
+      
+
+      void syncDailyNotifications({
+  todayDate:
+    todaySeed,
+
+  todayCompleted:
+    savedDaily?.completed ===
+    true,
+});
 
       };
 
