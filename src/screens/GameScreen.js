@@ -22,6 +22,7 @@ import {
 import AttemptCounter from '../components/AttemptCounter';
 import DeathModal from '../components/DeathModal';
 import SuccessModal from '../components/SuccessModal';
+import ShareCard from '../components/ShareCard';
 import Indicator from '../components/Indicator';
 import SafeZone from '../components/SafeZone';
 
@@ -53,6 +54,7 @@ import {
   setSoundSettings,
   SOUND_KEYS,
 } from '../utils/sounds';
+
 
 import {
   LAYOUT,
@@ -281,6 +283,9 @@ const hapticSettingsRef =
     enabled: true,
     reducedIntensity: false,
   });
+
+  const shareCardRef =
+  useRef(null);
 
 useEffect(() => {
   let isActive = true;
@@ -651,7 +656,7 @@ if (isDailyChallenge) {
 
  if (success) {
 void playSound(
-  SOUND_KEYS.SUCCESS
+SOUND_KEYS.SUCCESS
 );
 
 void playSound(
@@ -944,6 +949,33 @@ const handleMute = () => {
 
         </View>
       </View>
+{result === 'success' && (
+  <View
+    pointerEvents="none"
+    style={
+      styles.shareCardRenderLayer
+    }
+  >
+    <ShareCard
+      ref={shareCardRef}
+      level={level}
+      attempts={attempts}
+      pattern={
+        attemptPattern
+      }
+      type={
+        isDailyChallenge
+          ? 'daily'
+          : 'success'
+      }
+      date={
+        isDailyChallenge
+          ? dailyChallenge.date
+          : null
+      }
+    />
+  </View>
+)}
 
 <SuccessModal
   visible={
@@ -1051,6 +1083,12 @@ const styles =
         LAYOUT.screenPadding,
       paddingTop: SPACING.md,
       paddingBottom: SPACING.sm,
+    },
+
+    shareCardRenderLayer: {
+      position: 'absolute',
+      left: -10000,
+      top: 0,
     },
 
     gameplayTouchArea: {

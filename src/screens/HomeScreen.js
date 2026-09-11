@@ -31,6 +31,8 @@ import {
 import {
   createDailyChallenge,
   getDailySeed,
+  getDailyStreak,
+  getYesterdayDailyResult,
 } from '../utils/dailyChallenge';
 
 import DailyTimer from 
@@ -40,6 +42,7 @@ import {
   playSound,
   SOUND_KEYS,
 } from '../utils/sounds';
+
 
 import {
   LAYOUT,
@@ -65,6 +68,7 @@ export default function HomeScreen({
   gameStats,
   setGameStats,
 ] = useState({
+  streak: 0,
   totalAttempts: 0,
   completedLevels: 0,
 });
@@ -72,6 +76,11 @@ export default function HomeScreen({
 const [
   dailyChallenge,
   setDailyChallenge,
+] = useState(null);
+
+const [
+  yesterdayResult,
+  setYesterdayResult,
 ] = useState(null);
 
 useFocusEffect(
@@ -82,6 +91,16 @@ useFocusEffect(
       async () => {
         const gameData =
           await loadGameData();
+
+          const dailyStreak =
+  getDailyStreak(
+    gameData.dailyHistory
+  );
+
+const yesterdayDailyResult =
+  getYesterdayDailyResult(
+    gameData.dailyHistory
+  );
 
         const todaySeed =
           getDailySeed();
@@ -119,12 +138,15 @@ useFocusEffect(
         }
 
         setGameStats({
-          totalAttempts:
-            gameData.totalAttempts,
+  streak:
+    dailyStreak,
 
-          completedLevels:
-            gameData.completedLevels,
-        });
+  totalAttempts:
+    gameData.totalAttempts,
+
+  completedLevels:
+    gameData.completedLevels,
+});
 
         setDailyChallenge(
           savedDaily ?? {
@@ -135,6 +157,11 @@ useFocusEffect(
             synced: false,
           }
         );
+
+        setYesterdayResult(
+          yesterdayDailyResult
+        );
+
       };
 
     void refreshHomeData();
@@ -287,6 +314,20 @@ const handleDailyChallenge =
     : 'PREPARING DAILY...'}
 </Text>
 
+<Text
+  style={
+    styles.dailyYesterday
+  }
+>
+  {yesterdayResult === null
+    ? 'YESTERDAY // NO RESULT'
+    : yesterdayResult.completed
+      ? `YESTERDAY // COMPLETE // ${yesterdayResult.attempts} ATTEMPTS`
+      : yesterdayResult.attempts > 0
+        ? `YESTERDAY // INCOMPLETE // ${yesterdayResult.attempts} ATTEMPTS`
+        : 'YESTERDAY // NOT PLAYED'}
+</Text>
+
               </View>
             </View>
 
@@ -314,10 +355,13 @@ const handleDailyChallenge =
             </Text>
 
             <Text
-              style={styles.statValue}
-            >
-              0
-            </Text>
+  style={[
+    styles.statValue,
+    styles.streakValue,
+  ]}
+>
+  {gameStats.streak}
+</Text>
           </View>
 
           <View style={styles.statPanel}>
@@ -339,8 +383,12 @@ const handleDailyChallenge =
           </View>
 
           <View style={styles.statPanel}>
-            <Text style={styles.statIcon}>
-              ◇
+            <Text
+  style={[
+    styles.statIcon,
+    styles.streakIcon,
+  ]}
+>
             </Text>
 
             <Text
@@ -721,6 +769,18 @@ const styles =
       letterSpacing: 2,
     },
 
+    dailyYesterday: {
+  ...TYPOGRAPHY.label,
+
+  marginTop: SPACING.sm,
+
+  color: COLORS.muted,
+
+  fontSize: 7,
+
+  letterSpacing: 1.5,
+},
+
     dailyBadge: {
       ...TYPOGRAPHY.label,
 
@@ -772,6 +832,10 @@ const styles =
       lineHeight: 22,
     },
 
+    streakIcon: {
+  color: COLORS.warning,
+},
+
     statLabel: {
       ...TYPOGRAPHY.label,
 
@@ -795,6 +859,10 @@ const styles =
 
       fontSize: 28,
     },
+
+    streakValue: {
+  color: COLORS.warning,
+},
 
     challengeButton: {
       width: '100%',
