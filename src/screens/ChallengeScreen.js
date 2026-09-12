@@ -158,12 +158,14 @@ function ChallengeHistoryCard({
       </View>
 
       <Text
-        style={styles.historyTarget}
-      >
-        {suffering
-          ? `TARGET // ${challenge.score} ATTEMPTS`
-          : `THEM // ${challenge.score} ATTEMPTS`}
-      </Text>
+  style={styles.historyTarget}
+>
+  {challenge.status === 'sent'
+    ? `YOU // ${challenge.score} ATTEMPTS`
+    : suffering
+      ? `TARGET // ${challenge.score} ATTEMPTS`
+      : `THEM // ${challenge.score} ATTEMPTS`}
+</Text>
 
       <Text
         style={styles.historySeed}
