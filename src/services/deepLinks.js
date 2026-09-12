@@ -74,10 +74,32 @@ function parseSeed(
   return seed;
 }
 
+function parseChallengeKind(
+  value
+) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ''
+  ) {
+    return 'completed';
+  }
+
+  if (
+    value === 'completed' ||
+    value === 'suffering'
+  ) {
+    return value;
+  }
+
+  return null;
+}
+
 function createChallengeData({
   level,
   score,
   seed,
+  kind = 'completed',
 }) {
   const parsedLevel =
     parsePositiveInteger(
@@ -92,10 +114,16 @@ function createChallengeData({
   const parsedSeed =
     parseSeed(seed);
 
+  const parsedKind =
+    parseChallengeKind(
+      kind
+    );
+
   if (
     parsedLevel === null ||
     parsedScore === null ||
-    parsedSeed === null
+    parsedSeed === null ||
+    parsedKind === null
   ) {
     return null;
   }
@@ -104,6 +132,7 @@ function createChallengeData({
     level: parsedLevel,
     score: parsedScore,
     seed: parsedSeed,
+    kind: parsedKind,
   };
 }
 
@@ -137,10 +166,17 @@ function parsePathChallenge(
     return null;
   }
 
+  const kind =
+    typeof parsedUrl.queryParams
+      ?.kind === 'string'
+      ? parsedUrl.queryParams.kind
+      : null;
+
   return createChallengeData({
     level: segments[1],
     score: segments[2],
     seed: segments[3],
+    kind,
   });
 }
 
@@ -171,6 +207,12 @@ function parseQueryChallenge(
       typeof queryParams.seed ===
       'string'
         ? queryParams.seed
+        : null,
+
+    kind:
+      typeof queryParams.kind ===
+      'string'
+        ? queryParams.kind
         : null,
   });
 }
@@ -242,17 +284,25 @@ export function createChallengeLink({
   level,
   score,
   seed,
+  kind = 'completed',
 }) {
   const challengeData =
     createChallengeData({
       level: String(level),
       score: String(score),
       seed,
+      kind,
     });
 
   if (!challengeData) {
     return null;
   }
+
+  const kindSuffix =
+    challengeData.kind ===
+    'suffering'
+      ? '?kind=suffering'
+      : '';
 
   return (
     `https://${UNIVERSAL_HOST}/` +
@@ -261,6 +311,6 @@ export function createChallengeLink({
     `${challengeData.score}/` +
     `${encodeURIComponent(
       challengeData.seed
-    )}`
+    )}${kindSuffix}`
   );
 }

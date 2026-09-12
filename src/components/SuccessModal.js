@@ -88,6 +88,7 @@ export default function SuccessModal({
   onChallengeFriend,
   onNextLevel,
   titleOverride = null,
+  comparisonOverride = null,
   nextLabel = 'NEXT LEVEL',
 
 }) {
@@ -249,11 +250,14 @@ export default function SuccessModal({
       : 'ATTEMPTS';
 
   const comparisonText =
+  comparisonOverride ??
+  (
     Number.isFinite(
       worldAverage
     )
       ? `YOU: ${attempts} ${attemptWord}  |  WORLD AVG: ${worldAverage}`
-      : `YOU: ${attempts} ${attemptWord}  |  WORLD AVG UNAVAILABLE`;
+      : `YOU: ${attempts} ${attemptWord}  |  WORLD AVG UNAVAILABLE`
+  );
 
   return (
     <Modal

@@ -409,6 +409,7 @@ export function recordSentChallenge({
   score,
   seed,
   timestamp,
+  kind = 'completed',
 }) {
   return updateGameData(
     (gameData) => ({
@@ -423,6 +424,7 @@ export function recordSentChallenge({
           score,
           seed,
           timestamp,
+          kind,
           status: 'sent',
         },
       },

@@ -39,9 +39,9 @@ export default function ChallengeScreen({
     null;
 
   const challengeKey =
-    challenge
-      ? `${challenge.level}:${challenge.score}:${challenge.seed}`
-      : null;
+  challenge
+    ? `${challenge.level}:${challenge.score}:${challenge.seed}:${challenge.kind ?? 'completed'}`
+    : null;
 
   const lastPingedChallengeRef =
     useRef(null);
@@ -135,20 +135,30 @@ export default function ChallengeScreen({
             </Text>
 
             <Text
-              style={styles.message}
-            >
-              {`Someone beat Level ${challenge.level} in ${challenge.score} ${
-                challenge.score === 1
-                  ? 'try'
-                  : 'tries'
-              }.`}
-            </Text>
+  style={styles.message}
+>
+  {challenge.kind ===
+  'suffering'
+    ? `Someone has already spent ${challenge.score} ${
+        challenge.score === 1
+          ? 'attempt'
+          : 'attempts'
+      } on Level ${challenge.level} and still hasn't beaten it.`
+    : `Someone beat Level ${challenge.level} in ${challenge.score} ${
+        challenge.score === 1
+          ? 'try'
+          : 'tries'
+      }.`}
+</Text>
 
-            <Text
-              style={styles.question}
-            >
-              Can you beat them?
-            </Text>
+<Text
+  style={styles.question}
+>
+  {challenge.kind ===
+  'suffering'
+    ? `Can you beat Level ${challenge.level} in fewer attempts?`
+    : 'Can you beat them?'}
+</Text>
 
             <View
               style={

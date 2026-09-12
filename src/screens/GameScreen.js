@@ -932,27 +932,29 @@ const handleShareCard =
     }
   };
 
-const handleChallengeFriend =
-  async () => {
+const shareChallenge =
+  async ({
+    kind = 'completed',
+  } = {}) => {
     if (
-      result !== 'success' ||
       isSharingRef.current
     ) {
       return;
     }
 
     const challengeSeed =
-  isChallengeMode
-    ? challenge.seed
-    : isDailyChallenge
-      ? dailyChallenge.seed
-      : `level-${level}`;
+      isChallengeMode
+        ? challenge.seed
+        : isDailyChallenge
+          ? dailyChallenge.seed
+          : `level-${level}`;
 
     const challengeLink =
       createChallengeLink({
         level,
         score: attempts,
         seed: challengeSeed,
+        kind,
       });
 
     if (!challengeLink) {
@@ -964,7 +966,9 @@ const handleChallengeFriend =
     }
 
     const challengeText =
-      `I spent ${attempts} attempts on Level ${level} in Secundas. Think you can do better? ${challengeLink}`;
+      kind === 'suffering'
+        ? `I've spent ${attempts} attempts on Level ${level} in Secundas and still haven't beaten it. Can you beat it in fewer attempts? ${challengeLink}`
+        : `I spent ${attempts} attempts on Level ${level} in Secundas. Think you can do better? ${challengeLink}`;
 
     isSharingRef.current =
       true;
@@ -1010,6 +1014,7 @@ const handleChallengeFriend =
           score: attempts,
           seed: challengeSeed,
           timestamp,
+          kind,
         });
 
       if (
@@ -1030,6 +1035,33 @@ const handleChallengeFriend =
       isSharingRef.current =
         false;
     }
+  };
+
+const handleChallengeFriend =
+  async () => {
+    if (
+      result !== 'success'
+    ) {
+      return;
+    }
+
+    await shareChallenge({
+      kind: 'completed',
+    });
+  };
+
+const handleChallengeSuffering =
+  async () => {
+    if (
+      result !== 'fail' ||
+      attempts < 25
+    ) {
+      return;
+    }
+
+    await shareChallenge({
+      kind: 'suffering',
+    });
   };
 
 const handleMute = () => {
@@ -1250,8 +1282,36 @@ titleOverride={
   isDailyChallenge
     ? 'DAILY CHALLENGE COMPLETE'
     : isChallengeMode
-      ? 'CHALLENGE COMPLETE'
+      ? attempts <
+        challenge.score
+        ? 'YOU WIN'
+        : 'THEY GOT YOU'
       : null
+}
+
+comparisonOverride={
+  isChallengeMode
+    ? challenge.kind ===
+      'suffering'
+      ? `YOU: ${attempts} ${
+          attempts === 1
+            ? 'ATTEMPT'
+            : 'ATTEMPTS'
+        }  |  TARGET: ${challenge.score} ${
+          challenge.score === 1
+            ? 'ATTEMPT'
+            : 'ATTEMPTS'
+        }`
+      : `YOU: ${attempts} ${
+          attempts === 1
+            ? 'ATTEMPT'
+            : 'ATTEMPTS'
+        }  |  THEM: ${challenge.score} ${
+          challenge.score === 1
+            ? 'ATTEMPT'
+            : 'ATTEMPTS'
+        }`
+    : null
 }
 
 nextLabel={
@@ -1275,15 +1335,18 @@ onChallengeFriend={
 />
 
 <DeathModal
-visible={result === 'fail'}
-attempts={attempts}
-level={level}
-nearMiss={nearMiss}
-onDismiss={handleRetry}
-onShareSuffering={
+  visible={result === 'fail'}
+  attempts={attempts}
+  level={level}
+  nearMiss={nearMiss}
+  onDismiss={handleRetry}
+  onShareSuffering={
     handleShareCard
   }
-/> 
+  onChallengeFriend={
+    handleChallengeSuffering
+  }
+/>
 
       <View
         style={styles.bottomControls}
