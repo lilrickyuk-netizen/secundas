@@ -10,6 +10,7 @@ import {
   Easing,
   PanResponder,
   Pressable,
+  Share,
   StyleSheet,
   Text,
   View,
@@ -50,6 +51,7 @@ import {
   loadGameData,
   recordDailyAttempt,
   recordLevelAttempt,
+  recordSentChallenge,
   updateGameSettings,
 } from '../utils/storage';
 
@@ -70,6 +72,9 @@ import{
   cancelDailyReminder,
 } from '../services/notifications';
 
+import {
+  createChallengeLink,
+} from '../services/deepLinks';
 
 import {
   LAYOUT,
@@ -906,6 +911,103 @@ const handleShareCard =
     }
   };
 
+const handleChallengeFriend =
+  async () => {
+    if (
+      result !== 'success' ||
+      isSharingRef.current
+    ) {
+      return;
+    }
+
+    const challengeSeed =
+      isDailyChallenge
+        ? dailyChallenge.seed
+        : `level-${level}`;
+
+    const challengeLink =
+      createChallengeLink({
+        level,
+        score: attempts,
+        seed: challengeSeed,
+      });
+
+    if (!challengeLink) {
+      console.warn(
+        'Challenge link could not be created.'
+      );
+
+      return;
+    }
+
+    const challengeText =
+      `I spent ${attempts} attempts on Level ${level} in Secundas. Think you can do better? ${challengeLink}`;
+
+    isSharingRef.current =
+      true;
+
+    try {
+      await Clipboard
+        .setStringAsync(
+          challengeLink
+        );
+
+      const shareResult =
+        await Share.share(
+          {
+            title:
+              'Challenge a friend in Secundas',
+
+            message:
+              challengeText,
+          },
+          {
+            dialogTitle:
+              'Challenge a friend in Secundas',
+          }
+        );
+
+      if (
+        shareResult.action !==
+        Share.sharedAction
+      ) {
+        return;
+      }
+
+      const timestamp =
+        Date.now();
+
+      const challengeId =
+        `local-${timestamp}-${level}-${attempts}`;
+
+      const updatedData =
+        await recordSentChallenge({
+          challengeId,
+          level,
+          score: attempts,
+          seed: challengeSeed,
+          timestamp,
+        });
+
+      if (
+        !updatedData
+          ?.challenges
+          ?.[challengeId]
+      ) {
+        console.warn(
+          'Challenge was shared but could not be stored locally.'
+        );
+      }
+    } catch (error) {
+      console.warn(
+        'Challenge sharing failed:',
+        error
+      );
+    } finally {
+      isSharingRef.current =
+        false;
+    }
+  };
 
 const handleMute = () => {
   const nextMuted =
@@ -1126,6 +1228,10 @@ nextLabel={
 
 onShareVictory={
   handleShareCard
+}
+
+onChallengeFriend={
+  handleChallengeFriend
 }
 
   onNextLevel={

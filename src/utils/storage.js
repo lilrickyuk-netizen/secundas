@@ -403,6 +403,32 @@ export function recordDailyAttempt({
   );
 }
 
+export function recordSentChallenge({
+  challengeId,
+  level,
+  score,
+  seed,
+  timestamp,
+}) {
+  return updateGameData(
+    (gameData) => ({
+      ...gameData,
+
+      challenges: {
+        ...gameData.challenges,
+
+        [challengeId]: {
+          challengeId,
+          level,
+          score,
+          seed,
+          timestamp,
+          status: 'sent',
+        },
+      },
+    })
+  );
+}
 
 export function recordLevelAttempt({
   level,

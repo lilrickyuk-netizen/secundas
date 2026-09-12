@@ -180,7 +180,10 @@ const milestoneText =
 
 const milestoneAction =
   attempts >= 25
-    ? onChallengeFriend
+    ? (
+        onChallengeFriend ??
+        onShareSuffering
+      )
     : attempts >= 10
       ? onShareSuffering
       : null;

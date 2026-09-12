@@ -237,3 +237,30 @@ export function parseChallengeLink(
 
   return null;
 }
+
+export function createChallengeLink({
+  level,
+  score,
+  seed,
+}) {
+  const challengeData =
+    createChallengeData({
+      level: String(level),
+      score: String(score),
+      seed,
+    });
+
+  if (!challengeData) {
+    return null;
+  }
+
+  return (
+    `https://${UNIVERSAL_HOST}/` +
+    `${CHALLENGE_PATH}/` +
+    `${challengeData.level}/` +
+    `${challengeData.score}/` +
+    `${encodeURIComponent(
+      challengeData.seed
+    )}`
+  );
+}
