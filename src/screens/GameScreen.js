@@ -208,6 +208,16 @@ const dailyChallenge =
 const isDailyChallenge =
   dailyChallenge !== null;
 
+  const challenge =
+  route?.params?.mode ===
+  'challenge'
+    ? route?.params
+        ?.challenge ?? null
+    : null;
+
+const isChallengeMode =
+  challenge !== null;
+
   const [level, setLevel] =
     useState(START_LEVEL);
 
@@ -336,11 +346,13 @@ const storedDaily =
     : null;
 
 const storedLevel =
-  isDailyChallenge
-    ? dailyChallenge.level
-    : startFresh
-      ? START_LEVEL
-      : gameData.currentLevel;
+  isChallengeMode
+    ? challenge.level
+    : isDailyChallenge
+      ? dailyChallenge.level
+      : startFresh
+        ? START_LEVEL
+        : gameData.currentLevel;
 
 const levelKey =
   `level_${storedLevel}`;
@@ -351,34 +363,38 @@ const storedLevelData =
   ];
 
 const storedAttempts =
-  isDailyChallenge
-    ? Number.isFinite(
-        storedDaily?.attempts
-      )
-      ? storedDaily.attempts
-      : START_ATTEMPTS
-    : startFresh
-      ? START_ATTEMPTS
-      : Number.isFinite(
-          storedLevelData?.attempts
+  isChallengeMode
+    ? START_ATTEMPTS
+    : isDailyChallenge
+      ? Number.isFinite(
+          storedDaily?.attempts
         )
-        ? storedLevelData.attempts
-        : START_ATTEMPTS;
+        ? storedDaily.attempts
+        : START_ATTEMPTS
+      : startFresh
+        ? START_ATTEMPTS
+        : Number.isFinite(
+            storedLevelData?.attempts
+          )
+          ? storedLevelData.attempts
+          : START_ATTEMPTS;
 
 const storedPattern =
-  isDailyChallenge
-    ? Array.isArray(
-        storedDaily?.pattern
-      )
-      ? storedDaily.pattern
-      : []
-    : startFresh
-      ? []
-      : Array.isArray(
-          storedLevelData?.pattern
+  isChallengeMode
+    ? []
+    : isDailyChallenge
+      ? Array.isArray(
+          storedDaily?.pattern
         )
-        ? storedLevelData.pattern
-        : [];
+        ? storedDaily.pattern
+        : []
+      : startFresh
+        ? []
+        : Array.isArray(
+            storedLevelData?.pattern
+          )
+          ? storedLevelData.pattern
+          : [];
 
       attemptsRef.current =
         storedAttempts;
@@ -663,7 +679,7 @@ if (isDailyChallenge) {
 
     success,
   });
-} else {
+} else if (!isChallengeMode) {
   void recordLevelAttempt({
     level,
 
@@ -801,6 +817,11 @@ setResult('fail')
       return;
     }
 
+if (isChallengeMode) {
+  navigation.popToTop();
+  return;
+}
+
 if (isDailyChallenge) {
   navigation.goBack();
   return;
@@ -921,9 +942,11 @@ const handleChallengeFriend =
     }
 
     const challengeSeed =
-      isDailyChallenge
-        ? dailyChallenge.seed
-        : `level-${level}`;
+  isChallengeMode
+    ? challenge.seed
+    : isDailyChallenge
+      ? dailyChallenge.seed
+      : `level-${level}`;
 
     const challengeLink =
       createChallengeLink({
@@ -1142,6 +1165,15 @@ const handleMute = () => {
         >
           {result === null && (
             <>
+            {isChallengeMode && (
+  <Text
+    style={
+      styles.challengeTargetText
+    }
+  >
+    {`BEAT ${challenge.score} ATTEMPTS`}
+  </Text>
+)}
               <Text
                 style={styles.tapText}
               >
@@ -1217,11 +1249,14 @@ const handleMute = () => {
 titleOverride={
   isDailyChallenge
     ? 'DAILY CHALLENGE COMPLETE'
-    : null
+    : isChallengeMode
+      ? 'CHALLENGE COMPLETE'
+      : null
 }
 
 nextLabel={
-  isDailyChallenge
+  isDailyChallenge ||
+  isChallengeMode
     ? 'BACK HOME'
     : 'NEXT LEVEL'
 }
@@ -1553,6 +1588,38 @@ const styles =
       fontSize: 9,
       letterSpacing: 4,
     },
+
+    challengeTargetText: {
+  ...TYPOGRAPHY.label,
+
+  marginBottom: SPACING.sm,
+
+  paddingHorizontal:
+    SPACING.md,
+
+  paddingVertical:
+    SPACING.xs,
+
+  color: COLORS.electric,
+
+  fontSize: 11,
+  letterSpacing: 3,
+
+  textAlign: 'center',
+
+  backgroundColor:
+    'rgba(0,209,255,0.06)',
+
+  borderWidth: 1,
+
+  borderColor:
+    'rgba(0,209,255,0.55)',
+
+  borderRadius:
+    RADII.pill,
+
+  overflow: 'hidden',
+},
 
     failText: {
       ...TYPOGRAPHY.heading,
