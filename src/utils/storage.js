@@ -432,6 +432,173 @@ export function recordSentChallenge({
   );
 }
 
+function createReceivedChallengeId({
+  level,
+  score,
+  seed,
+  kind = 'completed',
+}) {
+  return (
+    `received-${kind}-` +
+    `${level}-${score}-${seed}`
+  );
+}
+
+export function recordReceivedChallenge({
+  level,
+  score,
+  seed,
+  kind = 'completed',
+}) {
+  const challengeId =
+    createReceivedChallengeId({
+      level,
+      score,
+      seed,
+      kind,
+    });
+
+  const timestamp =
+    Date.now();
+
+  return updateGameData(
+    (gameData) => {
+      const previousChallenge =
+        gameData.challenges[
+          challengeId
+        ];
+
+      if (previousChallenge) {
+        return gameData;
+      }
+
+      return {
+        ...gameData,
+
+        challenges: {
+          ...gameData.challenges,
+
+          [challengeId]: {
+            challengeId,
+            level,
+            score,
+            seed,
+            kind,
+            timestamp,
+            status: 'received',
+          },
+        },
+      };
+    }
+  ).then(
+    (gameData) =>
+      gameData
+        ?.challenges
+        ?.[challengeId] ??
+      null
+  );
+}
+
+export function recordAcceptedChallenge(
+  challengeId
+) {
+  const acceptedAt =
+    Date.now();
+
+  return updateGameData(
+    (gameData) => {
+      const previousChallenge =
+        gameData.challenges[
+          challengeId
+        ];
+
+      if (!previousChallenge) {
+        return gameData;
+      }
+
+      if (
+        previousChallenge.status ===
+        'completed'
+      ) {
+        return gameData;
+      }
+
+      return {
+        ...gameData,
+
+        challenges: {
+          ...gameData.challenges,
+
+          [challengeId]: {
+            ...previousChallenge,
+
+            status: 'accepted',
+
+            acceptedAt:
+              previousChallenge
+                .acceptedAt ??
+              acceptedAt,
+          },
+        },
+      };
+    }
+  ).then(
+    (gameData) =>
+      gameData
+        ?.challenges
+        ?.[challengeId] ??
+      null
+  );
+}
+
+export function recordCompletedChallenge({
+  challengeId,
+  challengedScore,
+  outcome,
+}) {
+  const completedAt =
+    Date.now();
+
+  return updateGameData(
+    (gameData) => {
+      const previousChallenge =
+        gameData.challenges[
+          challengeId
+        ];
+
+      if (!previousChallenge) {
+        return gameData;
+      }
+
+      return {
+        ...gameData,
+
+        challenges: {
+          ...gameData.challenges,
+
+          [challengeId]: {
+            ...previousChallenge,
+
+            challengedScore,
+
+            outcome,
+
+            completedAt,
+
+            status: 'completed',
+          },
+        },
+      };
+    }
+  ).then(
+    (gameData) =>
+      gameData
+        ?.challenges
+        ?.[challengeId] ??
+      null
+  );
+}
+
 export function recordLevelAttempt({
   level,
   attempts,

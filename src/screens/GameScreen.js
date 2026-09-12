@@ -49,6 +49,7 @@ import {
 
 import {
   loadGameData,
+  recordCompletedChallenge,
   recordDailyAttempt,
   recordLevelAttempt,
   recordSentChallenge,
@@ -694,6 +695,26 @@ if (isDailyChallenge) {
 }
 
  if (success) {
+
+  if (
+  isChallengeMode &&
+  challenge?.challengeId
+) {
+  void recordCompletedChallenge({
+    challengeId:
+      challenge.challengeId,
+
+    challengedScore:
+      nextAttempts,
+
+    outcome:
+      nextAttempts <
+      challenge.score
+        ? 'won'
+        : 'lost',
+  });
+}
+
   if (
     isDailyChallenge
   ) {

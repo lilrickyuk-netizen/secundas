@@ -87,6 +87,11 @@ const [
   setYesterdayResult,
 ] = useState(null);
 
+const [
+  challengeInboxCount,
+  setChallengeInboxCount,
+] = useState(0);
+
 useFocusEffect(
   useCallback(() => {
     let isActive = true;
@@ -95,6 +100,16 @@ useFocusEffect(
       async () => {
         const gameData =
           await loadGameData();
+
+          const pendingChallengeCount =
+  Object.values(
+    gameData.challenges ??
+      {}
+  ).filter(
+    (challenge) =>
+      challenge?.status ===
+      'received'
+  ).length;
 
           const dailyStreak =
   getDailyStreak(
@@ -166,6 +181,9 @@ const yesterdayDailyResult =
           yesterdayDailyResult
         );
 
+        setChallengeInboxCount(
+  pendingChallengeCount
+);
       
 
       void syncDailyNotifications({
@@ -446,7 +464,7 @@ const handleDailyChallenge =
                 styles.challengeBadgeText
               }
             >
-              0
+              {challengeInboxCount}
             </Text>
           </View>
         </Pressable>
