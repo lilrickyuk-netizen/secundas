@@ -279,6 +279,23 @@ export function updateGameSettings(
   );
 }
 
+export function resetLocalProgress() {
+  return updateGameData(
+    (gameData) => ({
+      ...DEFAULT_GAME_DATA,
+
+      purchases: {
+        ...gameData.purchases,
+      },
+
+      settings: {
+        ...DEFAULT_SETTINGS,
+        ...gameData.settings,
+      },
+    })
+  );
+}
+
 export function ensureDailyChallenge(
   dailyChallenge
 ) {

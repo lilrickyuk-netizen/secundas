@@ -33,6 +33,7 @@ const TRAIL_SEGMENTS = [
 export default function Indicator({
   size = 20,
   angle = 0,
+  effectsEnabled = true,
 }) {
   const radians =
     (angle - 90) *
@@ -54,7 +55,8 @@ export default function Indicator({
         },
       ]}
     >
-      {TRAIL_SEGMENTS.map(
+      {effectsEnabled &&
+      TRAIL_SEGMENTS.map(
         (
           segment,
           index

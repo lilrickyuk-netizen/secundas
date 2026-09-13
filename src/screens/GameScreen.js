@@ -248,6 +248,11 @@ const isChallengeMode =
   setIsMuted,
  ] = useState(false);
 
+ const [
+  visualEffectsEnabled,
+  setVisualEffectsEnabled,
+] = useState(true);
+
   const levelConfig =
     useMemo(
       () =>
@@ -417,6 +422,12 @@ hapticSettingsRef.current = {
 setIsMuted(
   gameData.settings?.muted ===
 true
+);
+
+setVisualEffectsEnabled(
+  gameData.settings
+    ?.visualEffects !==
+    false
 );
 
       setLevel(
@@ -1150,17 +1161,19 @@ const handleMute = () => {
                 styles.arenaBackground
               }
             >
-              <Text
-              pointerEvents="none"
-              style={
-                styles.levelWatermark
-              }
->
-  {String(level).padStart(
-    2,
-    '0'
-  )}
-</Text>
+            {visualEffectsEnabled && (
+  <Text
+    pointerEvents="none"
+    style={
+      styles.levelWatermark
+    }
+  >
+    {String(level).padStart(
+      2,
+      '0'
+    )}
+  </Text>
+)}
               <SafeZone
                 size={ARENA_SIZE}
                 radius={ARENA_RADIUS}
@@ -1171,8 +1184,9 @@ const handleMute = () => {
                   levelConfig.safeZoneSize
                 }
                 dangerPulse={
-                  result === 'fail'
-                }
+  visualEffectsEnabled &&
+  result === 'fail'
+}
               />
 
               <Animated.View
@@ -1189,11 +1203,15 @@ const handleMute = () => {
                 ]}
               >
                 <Indicator
-                  size={DOT_SIZE}
-                  angle={
-                    currentAngle.current
-                  }
-                />
+  size={DOT_SIZE}
+  angle={
+    currentAngle.current
+  }
+  effectsEnabled={
+    visualEffectsEnabled
+  }
+/>
+
               </Animated.View>
 
               <Text
