@@ -8,6 +8,7 @@ import {
 import {
   Animated,
   Easing,
+  ImageBackground,
   PanResponder,
   Pressable,
   Share,
@@ -1114,6 +1115,18 @@ const handleMute = () => {
 };
 
   return (
+  <ImageBackground
+    source={require(
+      '../../game-bg.png'
+    )}
+    resizeMode="cover"
+    style={styles.backgroundImage}
+  >
+    <View
+      pointerEvents="none"
+      style={styles.backgroundOverlay}
+    />
+
     <SafeAreaView
       style={styles.screen}
     >
@@ -1446,20 +1459,38 @@ onChallengeFriend={
         />
       </View>
     </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles =
   StyleSheet.create({
-    screen: {
-      flex: 1,
-      backgroundColor:
-        COLORS.background,
-      paddingHorizontal:
-        LAYOUT.screenPadding,
-      paddingTop: SPACING.md,
-      paddingBottom: SPACING.sm,
-    },
+    backgroundImage: {
+  flex: 1,
+},
+
+backgroundOverlay: {
+  ...StyleSheet.absoluteFillObject,
+
+  backgroundColor:
+    'rgba(0,0,0,0.45)',
+},
+
+screen: {
+  flex: 1,
+
+  backgroundColor:
+    'transparent',
+
+  paddingHorizontal:
+    LAYOUT.screenPadding,
+
+  paddingTop:
+    SPACING.md,
+
+  paddingBottom:
+    SPACING.sm,
+},
 
     shareCardRenderLayer: {
       position: 'absolute',

@@ -8,6 +8,7 @@ import {
 } from '@react-navigation/native';
 
 import {
+  ImageBackground,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -54,6 +55,7 @@ import {
   SPACING,
   TYPOGRAPHY,
 } from '../utils/theme';
+
 
 function TrophyMark() {
   return (
@@ -228,8 +230,26 @@ const handleDailyChallenge =
     );
   };
 
-  return (
-    <SafeAreaView style={styles.screen}>
+    return (
+    <ImageBackground
+      source={require(
+        '../../home-bg.png'
+      )}
+      resizeMode="cover"
+      style={
+        styles.backgroundImage
+      }
+    >
+      <View
+        pointerEvents="none"
+        style={
+          styles.backgroundOverlay
+        }
+      />
+
+      <SafeAreaView
+        style={styles.screen}
+      >
       <ScrollView
         contentContainerStyle={
           styles.container
@@ -239,17 +259,6 @@ const handleDailyChallenge =
         }
       >
         <View style={styles.brandBlock}>
-          <View
-            style={styles.eclipseGlow}
-          />
-
-          <View
-            style={styles.eclipseRing}
-          />
-
-          <View
-            style={styles.eclipseCore}
-          />
 
           <Text style={styles.title}>
             SECUNDAS
@@ -487,17 +496,29 @@ const handleDailyChallenge =
         </Pressable>
       </ScrollView>
     </SafeAreaView>
+  </ImageBackground>
   );
 }
 
 const styles =
   StyleSheet.create({
-    screen: {
-      flex: 1,
+    backgroundImage: {
+  flex: 1,
+},
 
-      backgroundColor:
-        COLORS.background,
-    },
+backgroundOverlay: {
+  ...StyleSheet.absoluteFillObject,
+
+  backgroundColor:
+    'rgba(0,0,0,0.48)',
+},
+
+screen: {
+  flex: 1,
+
+  backgroundColor:
+    'transparent',
+},
 
     container: {
       flexGrow: 1,
