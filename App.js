@@ -40,6 +40,10 @@ import {
 } from './src/services/deepLinks';
 
 import {
+  initializeRevenueCat,
+} from './src/services/revenuecat';
+
+import {
   initializeSoundManager,
   unloadSoundManager,
 } from './src/utils/sounds';
@@ -98,6 +102,10 @@ export default function App() {
       void unloadSoundManager();
     };
   }, []);
+
+  useEffect(() => {
+  void initializeRevenueCat();
+}, []);
 
   useEffect(() => {
     let isActive = true;

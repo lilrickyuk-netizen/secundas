@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useEffect,
   useState,
 } from 'react';
 
@@ -29,6 +30,11 @@ import {
   resetLocalProgress,
   updateGameSettings,
 } from '../utils/storage';
+
+import {
+  getRevenueCatState,
+  subscribeRevenueCatState,
+} from '../services/revenuecat';
 
 import {
   setSoundSettings,
@@ -226,6 +232,79 @@ function LockedStoreButton({
   );
 }
 
+function getRevenueCatSystemLabel(
+  status
+) {
+  switch (status) {
+    case 'ready':
+      return 'CONNECTED';
+
+    case 'degraded':
+      return 'DEGRADED';
+
+    case 'initializing':
+      return 'CONNECTING';
+
+    case 'unavailable':
+      return 'UNAVAILABLE';
+
+    case 'idle':
+      return 'WAITING';
+
+    default:
+      return 'NOT CONFIGURED';
+  }
+}
+
+function getRevenueCatStoreLabel(
+  state
+) {
+  const systemLabel =
+    getRevenueCatSystemLabel(
+      state.status
+    );
+
+  if (
+    state.status !== 'ready' &&
+    state.status !== 'degraded'
+  ) {
+    return systemLabel;
+  }
+
+  if (
+    state.currentOfferingId
+  ) {
+    return 'OFFERING READY';
+  }
+
+  if (
+    state.offeringsLoaded
+  ) {
+    return 'NO OFFERING';
+  }
+
+  return systemLabel;
+}
+
+function getRevenueCatStatusColor(
+  status
+) {
+  switch (status) {
+    case 'ready':
+      return COLORS.success;
+
+    case 'initializing':
+      return COLORS.electric;
+
+    case 'degraded':
+    case 'unavailable':
+      return COLORS.warning;
+
+    default:
+      return COLORS.muted;
+  }
+}
+
 export default function SettingsScreen({
   navigation,
 }) {
@@ -255,11 +334,43 @@ export default function SettingsScreen({
   ] = useState(true);
 
   const [
-    isResetting,
-    setIsResetting,
-  ] = useState(false);
+  isResetting,
+  setIsResetting,
+] = useState(false);
 
-  useFocusEffect(
+const [
+  revenueCatState,
+  setRevenueCatState,
+] = useState(
+  () => getRevenueCatState()
+);
+
+useEffect(() => {
+  setRevenueCatState(
+    getRevenueCatState()
+  );
+
+  return subscribeRevenueCatState(
+    setRevenueCatState
+  );
+}, []);
+
+const revenueCatSystemLabel =
+  getRevenueCatSystemLabel(
+    revenueCatState.status
+  );
+
+const revenueCatStoreLabel =
+  getRevenueCatStoreLabel(
+    revenueCatState
+  );
+
+const revenueCatStatusColor =
+  getRevenueCatStatusColor(
+    revenueCatState.status
+  );
+
+useFocusEffect(
     useCallback(() => {
       let isActive = true;
 
@@ -725,13 +836,15 @@ export default function SettingsScreen({
           style={styles.panel}
         >
           <StatusRow
-            title="REVENUECAT"
-            description="PURCHASE SERVICE"
-            status="SERVICE PENDING"
-            statusColor={
-              COLORS.warning
-            }
-          />
+  title="REVENUECAT"
+  description="PURCHASE SERVICE"
+  status={
+    revenueCatStoreLabel
+  }
+  statusColor={
+    revenueCatStatusColor
+  }
+/>
 
           <View
             style={styles.divider}
@@ -776,13 +889,15 @@ export default function SettingsScreen({
           />
 
           <StatusRow
-            title="REVENUECAT"
-            description="PURCHASE STATUS"
-            status="SDK INSTALLED"
-            statusColor={
-              COLORS.electric
-            }
-          />
+  title="REVENUECAT"
+  description="PURCHASE STATUS"
+  status={
+    revenueCatSystemLabel
+  }
+  statusColor={
+    revenueCatStatusColor
+  }
+/>
 
           <View
             style={styles.divider}

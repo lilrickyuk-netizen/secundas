@@ -279,6 +279,30 @@ export function updateGameSettings(
   );
 }
 
+export function updateRevenueCatCache(
+  revenueCatUpdate
+) {
+  return updateGameData(
+    (gameData) => ({
+      ...gameData,
+
+      purchases: {
+        ...gameData.purchases,
+
+        revenueCat: {
+          ...(
+            gameData.purchases
+              ?.revenueCat ??
+            {}
+          ),
+
+          ...revenueCatUpdate,
+        },
+      },
+    })
+  );
+}
+
 export function resetLocalProgress() {
   return updateGameData(
     (gameData) => ({
