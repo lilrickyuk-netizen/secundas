@@ -23,6 +23,7 @@ import {
 
 import {
   COLORS,
+  PRODUCT_IDS,
 } from '../utils/constants';
 
 import {
@@ -32,7 +33,9 @@ import {
 } from '../utils/storage';
 
 import {
+  getRevenueCatProduct,
   getRevenueCatState,
+  purchaseRevenueCatProduct,
   subscribeRevenueCatState,
 } from '../services/revenuecat';
 
@@ -232,6 +235,48 @@ function LockedStoreButton({
   );
 }
 
+function PurchaseStoreButton({
+  title,
+  subtitle,
+  disabled = false,
+  loading = false,
+  onPress,
+}) {
+  const isDisabled =
+    disabled || loading;
+
+  return (
+    <Pressable
+      disabled={isDisabled}
+      style={[
+        styles.storeButton,
+
+        isDisabled &&
+          styles.disabledControl,
+      ]}
+      onPress={onPress}
+    >
+      <Text
+        style={
+          styles.storeButtonTitle
+        }
+      >
+        {loading
+          ? 'PROCESSING...'
+          : title}
+      </Text>
+
+      <Text
+        style={
+          styles.storeButtonSubtitle
+        }
+      >
+        {subtitle}
+      </Text>
+    </Pressable>
+  );
+}
+
 function getRevenueCatSystemLabel(
   status
 ) {
@@ -305,6 +350,35 @@ function getRevenueCatStatusColor(
   }
 }
 
+function getPurchaseSubtitle(
+  product,
+  revenueCatState
+) {
+  if (
+    typeof product?.priceString ===
+      'string' &&
+    product.priceString.length >
+      0
+  ) {
+    return product.priceString;
+  }
+
+  if (
+    !revenueCatState.configured
+  ) {
+    return 'STORE CONNECTION REQUIRED';
+  }
+
+  if (
+    !revenueCatState
+      .currentOfferingId
+  ) {
+    return 'NO CURRENT OFFERING';
+  }
+
+  return 'PRODUCT NOT AVAILABLE';
+}
+
 export default function SettingsScreen({
   navigation,
 }) {
@@ -339,6 +413,11 @@ export default function SettingsScreen({
 ] = useState(false);
 
 const [
+  purchasingProductId,
+  setPurchasingProductId,
+] = useState(null);
+
+const [
   revenueCatState,
   setRevenueCatState,
 ] = useState(
@@ -369,6 +448,25 @@ const revenueCatStatusColor =
   getRevenueCatStatusColor(
     revenueCatState.status
   );
+
+  const proProduct =
+  getRevenueCatProduct(
+    PRODUCT_IDS.proMode
+  );
+
+const skinsProduct =
+  getRevenueCatProduct(
+    PRODUCT_IDS.unlockSkins
+  );
+
+const lifetimeProduct =
+  getRevenueCatProduct(
+    PRODUCT_IDS.lifetime
+  );
+
+const storeBusy =
+  purchasingProductId !==
+  null;
 
 useFocusEffect(
     useCallback(() => {
@@ -518,6 +616,82 @@ useFocusEffect(
           nextEnabled,
       });
     };
+
+const handlePurchase =
+  async (
+    productId,
+    productLabel
+  ) => {
+    if (
+      purchasingProductId !==
+      null
+    ) {
+      return;
+    }
+
+    setPurchasingProductId(
+      productId
+    );
+
+    try {
+      const result =
+        await purchaseRevenueCatProduct(
+          productId
+        );
+
+      if (
+        result.status ===
+        'purchased'
+      ) {
+        Alert.alert(
+          'PURCHASE COMPLETE',
+          `${productLabel} purchase confirmed.`
+        );
+
+        return;
+      }
+
+      if (
+        result.status ===
+        'cancelled'
+      ) {
+        return;
+      }
+
+      if (
+        result.reason ===
+        'not_configured'
+      ) {
+        Alert.alert(
+          'STORE NOT CONFIGURED',
+          'RevenueCat is not configured yet.'
+        );
+
+        return;
+      }
+
+      if (
+        result.reason ===
+        'product_not_found'
+      ) {
+        Alert.alert(
+          'PRODUCT UNAVAILABLE',
+          'This product is not available in the current RevenueCat offering.'
+        );
+
+        return;
+      }
+
+      Alert.alert(
+        'PURCHASE FAILED',
+        'The purchase could not be completed. Please try again later.'
+      );
+    } finally {
+      setPurchasingProductId(
+        null
+      );
+    }
+  };
 
   const handleResetProgress =
     () => {
@@ -850,25 +1024,76 @@ useFocusEffect(
             style={styles.divider}
           />
 
-          <LockedStoreButton
-            title="GET PRO"
-            subtitle="STORE CONNECTION REQUIRED"
-          />
+          <PurchaseStoreButton
+  title="GET PRO"
+  subtitle={getPurchaseSubtitle(
+    proProduct,
+    revenueCatState
+  )}
+  disabled={
+    !proProduct ||
+    storeBusy
+  }
+  loading={
+    purchasingProductId ===
+    PRODUCT_IDS.proMode
+  }
+  onPress={() => {
+    void handlePurchase(
+      PRODUCT_IDS.proMode,
+      'PRO MODE'
+    );
+  }}
+/>
 
-          <LockedStoreButton
-            title="UNLOCK SKINS"
-            subtitle="STORE CONNECTION REQUIRED"
-          />
+<PurchaseStoreButton
+  title="UNLOCK SKINS"
+  subtitle={getPurchaseSubtitle(
+    skinsProduct,
+    revenueCatState
+  )}
+  disabled={
+    !skinsProduct ||
+    storeBusy
+  }
+  loading={
+    purchasingProductId ===
+    PRODUCT_IDS.unlockSkins
+  }
+  onPress={() => {
+    void handlePurchase(
+      PRODUCT_IDS.unlockSkins,
+      'UNLOCK SKINS'
+    );
+  }}
+/>
 
-          <LockedStoreButton
-            title="LIFETIME"
-            subtitle="STORE CONNECTION REQUIRED"
-          />
+<PurchaseStoreButton
+  title="LIFETIME"
+  subtitle={getPurchaseSubtitle(
+    lifetimeProduct,
+    revenueCatState
+  )}
+  disabled={
+    !lifetimeProduct ||
+    storeBusy
+  }
+  loading={
+    purchasingProductId ===
+    PRODUCT_IDS.lifetime
+  }
+  onPress={() => {
+    void handlePurchase(
+      PRODUCT_IDS.lifetime,
+      'LIFETIME'
+    );
+  }}
+/>
 
-          <LockedStoreButton
-            title="RESTORE PURCHASES"
-            subtitle="RESTORE SERVICE CONNECTS IN THE PURCHASE PHASE"
-          />
+<LockedStoreButton
+  title="RESTORE PURCHASES"
+  subtitle="RESTORE SERVICE CONNECTS IN PHASE 32"
+/>
         </View>
 
         <SectionTitle>

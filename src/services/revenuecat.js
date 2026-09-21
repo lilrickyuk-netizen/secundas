@@ -245,6 +245,180 @@ export function getRevenueCatCustomerInfo() {
   return currentCustomerInfo;
 }
 
+function getCurrentPackages() {
+  const packages =
+    currentOfferings
+      ?.current
+      ?.availablePackages;
+
+  return Array.isArray(packages)
+    ? packages
+    : [];
+}
+
+function getPackageStoreProduct(
+  aPackage
+) {
+  return (
+    aPackage?.storeProduct ??
+    null
+  );
+}
+
+function findPackageForProduct(
+  productId
+) {
+  if (
+    typeof productId !==
+      'string' ||
+    productId.length === 0
+  ) {
+    return null;
+  }
+
+  return (
+    getCurrentPackages().find(
+      (aPackage) => {
+        const product =
+          getPackageStoreProduct(
+            aPackage
+          );
+
+        return (
+          product?.identifier ===
+          productId
+        );
+      }
+    ) ?? null
+  );
+}
+
+export function getRevenueCatProduct(
+  productId
+) {
+  const aPackage =
+    findPackageForProduct(
+      productId
+    );
+
+  if (!aPackage) {
+    return null;
+  }
+
+  const product =
+    getPackageStoreProduct(
+      aPackage
+    );
+
+  return {
+    productId,
+
+    packageIdentifier:
+      aPackage.identifier ??
+      null,
+
+    priceString:
+      product?.priceString ??
+      null,
+  };
+}
+
+export async function purchaseRevenueCatProduct(
+  productId
+) {
+  if (
+    !revenueCatState.configured
+  ) {
+    return {
+      status: 'unavailable',
+      reason: 'not_configured',
+    };
+  }
+
+  let aPackage =
+    findPackageForProduct(
+      productId
+    );
+
+  if (!aPackage) {
+    await refreshRevenueCat();
+
+    aPackage =
+      findPackageForProduct(
+        productId
+      );
+  }
+
+  if (!aPackage) {
+    return {
+      status: 'unavailable',
+      reason:
+        'product_not_found',
+    };
+  }
+
+  try {
+    const {
+      customerInfo,
+    } =
+      await Purchases
+        .purchasePackage(
+          aPackage
+        );
+
+    currentCustomerInfo =
+      customerInfo;
+
+    const nextState =
+      publishState({
+        ...summarizeCustomerInfo(
+          customerInfo
+        ),
+
+        status: 'ready',
+
+        lastCheckedAt:
+          Date.now(),
+      });
+
+    try {
+      await persistState();
+    } catch (error) {
+      console.warn(
+        'RevenueCat purchase cache write failed:',
+        error
+      );
+    }
+
+    return {
+      status: 'purchased',
+      productId,
+      customerInfo,
+      state: nextState,
+    };
+  } catch (error) {
+    if (
+      error?.userCancelled ===
+      true
+    ) {
+      return {
+        status: 'cancelled',
+      };
+    }
+
+    console.warn(
+      'RevenueCat purchase failed:',
+      error
+    );
+
+    return {
+      status: 'error',
+      reason:
+        'purchase_failed',
+    };
+  }
+}
+
 export function subscribeRevenueCatState(
   listener
 ) {
