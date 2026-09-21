@@ -134,6 +134,13 @@ async function hydrateCachedState() {
         ? cached.activeEntitlementIds
         : [],
 
+        activeProductIds:
+  Array.isArray(
+    cached.activeProductIds
+  )
+    ? cached.activeProductIds
+    : [],
+
     currentOfferingId:
       typeof cached
         .currentOfferingId ===
@@ -183,13 +190,6 @@ async function persistState() {
     activeEntitlementIds:
       snapshot
         .activeEntitlementIds,
-
-        activeProductIds:
-  Array.isArray(
-    cached.activeProductIds
-  )
-    ? cached.activeProductIds
-    : [],
 
         activeProductIds:
   snapshot
