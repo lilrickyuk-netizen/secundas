@@ -419,6 +419,77 @@ export async function purchaseRevenueCatProduct(
   }
 }
 
+export async function restoreRevenueCatPurchases() {
+  if (
+    !revenueCatState.configured
+  ) {
+    return {
+      status: 'unavailable',
+      reason: 'not_configured',
+    };
+  }
+
+  try {
+    const customerInfo =
+      await Purchases.restorePurchases();
+
+    currentCustomerInfo =
+      customerInfo;
+
+    const nextState =
+      publishState({
+        ...summarizeCustomerInfo(
+          customerInfo
+        ),
+
+        status: 'ready',
+
+        lastCheckedAt:
+          Date.now(),
+      });
+
+    try {
+      await persistState();
+    } catch (error) {
+      console.warn(
+        'RevenueCat restore cache write failed:',
+        error
+      );
+    }
+
+    return {
+      status: 'restored',
+
+      customerInfo,
+
+      activeEntitlementIds:
+        nextState
+          .activeEntitlementIds,
+
+      state: nextState,
+    };
+  } catch (error) {
+    if (
+      error?.userCancelled ===
+      true
+    ) {
+      return {
+        status: 'cancelled',
+      };
+    }
+
+    console.warn(
+      'RevenueCat restore failed:',
+      error
+    );
+
+    return {
+      status: 'error',
+      reason: 'restore_failed',
+    };
+  }
+}
+
 export function subscribeRevenueCatState(
   listener
 ) {

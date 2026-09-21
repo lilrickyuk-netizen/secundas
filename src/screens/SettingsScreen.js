@@ -36,6 +36,7 @@ import {
   getRevenueCatProduct,
   getRevenueCatState,
   purchaseRevenueCatProduct,
+  restoreRevenueCatPurchases,
   subscribeRevenueCatState,
 } from '../services/revenuecat';
 
@@ -201,37 +202,6 @@ function StatusRow({
         {status}
       </Text>
     </View>
-  );
-}
-
-function LockedStoreButton({
-  title,
-  subtitle,
-}) {
-  return (
-    <Pressable
-      disabled
-      style={[
-        styles.storeButton,
-        styles.disabledControl,
-      ]}
-    >
-      <Text
-        style={
-          styles.storeButtonTitle
-        }
-      >
-        {title}
-      </Text>
-
-      <Text
-        style={
-          styles.storeButtonSubtitle
-        }
-      >
-        {subtitle}
-      </Text>
-    </Pressable>
   );
 }
 
@@ -418,6 +388,11 @@ const [
 ] = useState(null);
 
 const [
+  isRestoring,
+  setIsRestoring,
+] = useState(false);
+
+const [
   revenueCatState,
   setRevenueCatState,
 ] = useState(
@@ -466,7 +441,8 @@ const lifetimeProduct =
 
 const storeBusy =
   purchasingProductId !==
-  null;
+  null||
+  isRestoring;
 
 useFocusEffect(
     useCallback(() => {
@@ -622,12 +598,9 @@ const handlePurchase =
     productId,
     productLabel
   ) => {
-    if (
-      purchasingProductId !==
-      null
-    ) {
-      return;
-    }
+    if (storeBusy) {
+  return;
+}
 
     setPurchasingProductId(
       productId
@@ -690,6 +663,70 @@ const handlePurchase =
       setPurchasingProductId(
         null
       );
+    }
+  };
+
+  const handleRestorePurchases =
+  async () => {
+    if (storeBusy) {
+      return;
+    }
+
+    setIsRestoring(true);
+
+    try {
+      const result =
+        await restoreRevenueCatPurchases();
+
+      if (
+        result.status ===
+        'restored'
+      ) {
+        const restoredCount =
+          result
+            .activeEntitlementIds
+            ?.length ?? 0;
+
+        if (restoredCount > 0) {
+          Alert.alert(
+            'PURCHASES RESTORED',
+            'Your purchase access has been restored.'
+          );
+        } else {
+          Alert.alert(
+            'RESTORE COMPLETE',
+            'No active purchase entitlements were found for this Google Play account.'
+          );
+        }
+
+        return;
+      }
+
+      if (
+        result.status ===
+        'cancelled'
+      ) {
+        return;
+      }
+
+      if (
+        result.reason ===
+        'not_configured'
+      ) {
+        Alert.alert(
+          'STORE NOT CONFIGURED',
+          'RevenueCat is not configured yet.'
+        );
+
+        return;
+      }
+
+      Alert.alert(
+        'RESTORE FAILED',
+        'Purchases could not be restored. Please try again later.'
+      );
+    } finally {
+      setIsRestoring(false);
     }
   };
 
@@ -1090,10 +1127,23 @@ const handlePurchase =
   }}
 />
 
-<LockedStoreButton
+<PurchaseStoreButton
   title="RESTORE PURCHASES"
-  subtitle="RESTORE SERVICE CONNECTS IN PHASE 32"
+  subtitle={
+    revenueCatState.configured
+      ? 'RESTORE FROM GOOGLE PLAY'
+      : 'STORE CONNECTION REQUIRED'
+  }
+  disabled={
+    !revenueCatState.configured ||
+    storeBusy
+  }
+  loading={isRestoring}
+  onPress={() => {
+    void handleRestorePurchases();
+  }}
 />
+
         </View>
 
         <SectionTitle>
