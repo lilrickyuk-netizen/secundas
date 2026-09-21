@@ -31,6 +31,32 @@ export const PRODUCT_IDS = {
     lifetime: 'lifetime',
 };
 
+export const DOT_SKINS = [
+    'CLASSIC',
+    'GOLD',
+    'FIRE',
+    'GHOST',
+    'NEON',
+    'ICE',
+    'SHADOW',
+    'PULSE',
+    'RETRO',
+    'VOID',
+];
+
+export const DOT_SKIN_COLORS = {
+    CLASSIC: COLORS.electric,
+    GOLD: '#FFD166',
+    FIRE: '#FF5A36',
+    GHOST: '#E8F7FF',
+    NEON: '#FF2DFF',
+    ICE: '#7DEBFF',
+    SHADOW: '#6B7280',
+    PULSE: '#A855F7',
+    RETRO: '#FFB000',
+    VOID: '#7C3AED',
+};
+
 export const VISUALS = {
     neonGlowEnabled: true,
     motionTrailEnabled: true,

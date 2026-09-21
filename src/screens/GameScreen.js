@@ -46,6 +46,7 @@ import {
 
 import {
   COLORS,
+  DOT_SKINS,
 } from '../utils/constants';
 
 import {
@@ -77,6 +78,10 @@ import{
 import {
   createChallengeLink,
 } from '../services/deepLinks';
+
+import {
+  getRevenueCatAccessState,
+} from '../services/revenuecat';
 
 import {
   LAYOUT,
@@ -254,6 +259,13 @@ const isChallengeMode =
   setVisualEffectsEnabled,
 ] = useState(true);
 
+const [
+  dotSkin,
+  setDotSkin,
+] = useState(
+  'CLASSIC'
+);
+
   const levelConfig =
     useMemo(
       () =>
@@ -429,6 +441,30 @@ setVisualEffectsEnabled(
   gameData.settings
     ?.visualEffects !==
     false
+);
+
+const cachedAccess =
+  getRevenueCatAccessState(
+    gameData.purchases
+      ?.revenueCat
+  );
+
+const storedDotSkin =
+  DOT_SKINS.includes(
+    gameData.settings
+      ?.dotSkin
+  )
+    ? gameData.settings
+        .dotSkin
+    : 'CLASSIC';
+
+setDotSkin(
+  storedDotSkin ===
+      'CLASSIC' ||
+    cachedAccess
+      .hasSkinsAccess
+    ? storedDotSkin
+    : 'CLASSIC'
 );
 
       setLevel(
@@ -1223,6 +1259,7 @@ const handleMute = () => {
   effectsEnabled={
     visualEffectsEnabled
   }
+  skin={dotSkin}
 />
 
               </Animated.View>

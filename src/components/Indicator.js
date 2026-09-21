@@ -5,6 +5,7 @@ import {
 
 import {
   COLORS,
+  DOT_SKIN_COLORS,
 } from '../utils/constants';
 
 const TRAIL_SEGMENTS = [
@@ -29,11 +30,46 @@ const TRAIL_SEGMENTS = [
     opacity: 0.12,
   },
 ];
+function hexToRgba(
+  hex,
+  alpha
+) {
+  const normalized =
+    typeof hex === 'string'
+      ? hex.replace('#', '')
+      : '';
+
+  if (
+    !/^[0-9a-f]{6}$/i.test(
+      normalized
+    )
+  ) {
+    return `rgba(0,209,255,${alpha})`;
+  }
+
+  const value =
+    parseInt(
+      normalized,
+      16
+    );
+
+  const red =
+    (value >> 16) & 255;
+
+  const green =
+    (value >> 8) & 255;
+
+  const blue =
+    value & 255;
+
+  return `rgba(${red},${green},${blue},${alpha})`;
+}
 
 export default function Indicator({
   size = 20,
   angle = 0,
   effectsEnabled = true,
+  skin = 'CLASSIC',
 }) {
   const radians =
     (angle - 90) *
@@ -41,6 +77,22 @@ export default function Indicator({
 
   const trailDirectionX =
     Math.sin(radians);
+
+    const skinColor =
+  DOT_SKIN_COLORS[skin] ??
+  COLORS.electric;
+
+const outerGlowColor =
+  hexToRgba(
+    skinColor,
+    0.10
+  );
+
+const middleGlowColor =
+  hexToRgba(
+    skinColor,
+    0.28
+  );
 
   const trailDirectionY =
     -Math.cos(radians);
@@ -84,6 +136,12 @@ export default function Indicator({
                   opacity:
                     segment.opacity,
 
+                    backgroundColor:
+  skinColor,
+
+shadowColor:
+  skinColor,
+
                   left:
                     size / 2 -
                     segmentSize / 2 +
@@ -103,53 +161,69 @@ export default function Indicator({
       )}
 
       <View
-        style={[
-          styles.outerGlow,
-          {
-            width:
-              size * 2.6,
 
-            height:
-              size * 2.6,
+  style={[
+    styles.outerGlow,
+    {
+      width:
+        size * 2.6,
 
-            borderRadius:
-              size * 1.3,
+      height:
+        size * 2.6,
 
-            left:
-              -(size * 0.8),
+      borderRadius:
+        size * 1.3,
 
-            top:
-              -(size * 0.8),
-          },
-        ]}
+      left:
+        -(size * 0.8),
+
+      top:
+        -(size * 0.8),
+
+      backgroundColor:
+        outerGlowColor,
+    },
+  ]}
+
       >
         <View
-          style={[
-            styles.middleGlow,
-            {
-              width:
-                size * 1.7,
 
-              height:
-                size * 1.7,
+  style={[
+    styles.middleGlow,
+    {
+      width:
+        size * 1.7,
 
-              borderRadius:
-                size,
-            },
-          ]}
-        >
+      height:
+        size * 1.7,
+
+      borderRadius:
+        size,
+
+      backgroundColor:
+        middleGlowColor,
+    },
+  ]}
+>
           <View
-            style={[
-              styles.dot,
-              {
-                width: size,
-                height: size,
 
-                borderRadius:
-                  size / 2,
-              },
-            ]}
-          />
+  style={[
+    styles.dot,
+    {
+      width: size,
+      height: size,
+
+      borderRadius:
+        size / 2,
+
+      backgroundColor:
+        skinColor,
+
+      shadowColor:
+        skinColor,
+    },
+  ]}
+/>
         </View>
       </View>
     </View>

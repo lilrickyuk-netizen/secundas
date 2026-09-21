@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS = {
   haptics: true,
   soundIntensity: 'normal',
   visualEffects: true,
+  dotSkin: 'CLASSIC',
 };
 
 export const DEFAULT_GAME_DATA = {

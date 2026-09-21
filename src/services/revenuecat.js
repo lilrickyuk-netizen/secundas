@@ -10,14 +10,19 @@ import {
   updateRevenueCatCache,
 } from '../utils/storage';
 
+import {
+  PRODUCT_IDS,
+} from '../utils/constants';
+
 const INITIAL_STATE = {
   status: 'idle',
   configured: false,
   offeringsLoaded: false,
   currentOfferingId: null,
   availablePackageIdentifiers: [],
-  activeEntitlementIds: [],
-  lastCheckedAt: null,
+activeEntitlementIds: [],
+activeProductIds: [],
+lastCheckedAt: null,
 };
 
 let revenueCatState = {
@@ -72,6 +77,12 @@ function snapshotState() {
       ...revenueCatState
         .activeEntitlementIds,
     ],
+
+    activeProductIds: [
+  ...revenueCatState
+    .activeProductIds,
+],
+
   };
 }
 
@@ -173,6 +184,17 @@ async function persistState() {
       snapshot
         .activeEntitlementIds,
 
+        activeProductIds:
+  Array.isArray(
+    cached.activeProductIds
+  )
+    ? cached.activeProductIds
+    : [],
+
+        activeProductIds:
+  snapshot
+    .activeProductIds,
+
     lastCheckedAt:
       snapshot.lastCheckedAt,
   });
@@ -223,13 +245,39 @@ function summarizeOfferings(
 function summarizeCustomerInfo(
   customerInfo
 ) {
+  const activeEntitlements =
+    customerInfo
+      ?.entitlements
+      ?.active ?? {};
+
+  const activeProductIds =
+    [
+      ...new Set(
+        Object.values(
+          activeEntitlements
+        )
+          .map(
+            (entitlement) =>
+              entitlement
+                ?.productIdentifier
+          )
+          .filter(
+            (identifier) =>
+              typeof identifier ===
+                'string' &&
+              identifier.length >
+                0
+          )
+      ),
+    ];
+
   return {
     activeEntitlementIds:
       Object.keys(
-        customerInfo
-          ?.entitlements
-          ?.active ?? {}
+        activeEntitlements
       ),
+
+    activeProductIds,
   };
 }
 
@@ -243,6 +291,59 @@ export function getRevenueCatOfferings() {
 
 export function getRevenueCatCustomerInfo() {
   return currentCustomerInfo;
+}
+
+export function getRevenueCatAccessState(
+  state = revenueCatState
+) {
+  const activeProductIds =
+    Array.isArray(
+      state
+        ?.activeProductIds
+    )
+      ? state
+          .activeProductIds
+      : [];
+
+  const activeEntitlementIds =
+    Array.isArray(
+      state
+        ?.activeEntitlementIds
+    )
+      ? state
+          .activeEntitlementIds
+      : [];
+
+  const owns =
+    (productId) =>
+      activeProductIds.includes(
+        productId
+      ) ||
+      activeEntitlementIds.includes(
+        productId
+      );
+
+  const hasLifetimeAccess =
+    owns(
+      PRODUCT_IDS.lifetime
+    );
+
+  return {
+    hasLifetimeAccess,
+
+    hasProAccess:
+      hasLifetimeAccess ||
+      owns(
+        PRODUCT_IDS.proMode
+      ),
+
+    hasSkinsAccess:
+      hasLifetimeAccess ||
+      owns(
+        PRODUCT_IDS
+          .unlockSkins
+      ),
+  };
 }
 
 function getCurrentPackages() {

@@ -23,6 +23,8 @@ import {
 
 import {
   COLORS,
+  DOT_SKINS,
+  DOT_SKIN_COLORS,
   PRODUCT_IDS,
 } from '../utils/constants';
 
@@ -33,6 +35,7 @@ import {
 } from '../utils/storage';
 
 import {
+  getRevenueCatAccessState,
   getRevenueCatProduct,
   getRevenueCatState,
   purchaseRevenueCatProduct,
@@ -57,19 +60,6 @@ const APP_CONFIG =
 const APP_VERSION =
   APP_CONFIG?.expo?.version ??
   '1.0.0';
-
-const DOT_SKINS = [
-  'CLASSIC',
-  'GOLD',
-  'FIRE',
-  'GHOST',
-  'NEON',
-  'ICE',
-  'SHADOW',
-  'PULSE',
-  'RETRO',
-  'VOID',
-];
 
 function SectionTitle({
   children,
@@ -378,6 +368,13 @@ export default function SettingsScreen({
   ] = useState(true);
 
   const [
+  selectedSkin,
+  setSelectedSkin,
+] = useState(
+  'CLASSIC'
+);
+
+  const [
   isResetting,
   setIsResetting,
 ] = useState(false);
@@ -422,6 +419,15 @@ const revenueCatStoreLabel =
 const revenueCatStatusColor =
   getRevenueCatStatusColor(
     revenueCatState.status
+  );
+
+  const {
+  hasProAccess,
+  hasSkinsAccess,
+  hasLifetimeAccess,
+} =
+  getRevenueCatAccessState(
+    revenueCatState
   );
 
   const proProduct =
@@ -486,6 +492,30 @@ useFocusEffect(
               ?.visualEffects !==
               false
           );
+
+          const cachedAccess =
+  getRevenueCatAccessState(
+    gameData.purchases
+      ?.revenueCat
+  );
+
+const storedDotSkin =
+  DOT_SKINS.includes(
+    gameData.settings
+      ?.dotSkin
+  )
+    ? gameData.settings
+        .dotSkin
+    : 'CLASSIC';
+
+setSelectedSkin(
+  storedDotSkin ===
+      'CLASSIC' ||
+    cachedAccess
+      .hasSkinsAccess
+    ? storedDotSkin
+    : 'CLASSIC'
+);
 
           setSoundSettings({
             muted:
@@ -592,6 +622,36 @@ useFocusEffect(
           nextEnabled,
       });
     };
+
+    const handleSkinSelect =
+  (skin) => {
+    if (
+      !isReady ||
+      !DOT_SKINS.includes(
+        skin
+      )
+    ) {
+      return;
+    }
+
+    const isPremium =
+      skin !== 'CLASSIC';
+
+    if (
+      isPremium &&
+      !hasSkinsAccess
+    ) {
+      return;
+    }
+
+    setSelectedSkin(
+      skin
+    );
+
+    void updateGameSettings({
+      dotSkin: skin,
+    });
+  };
 
 const handlePurchase =
   async (
@@ -972,72 +1032,109 @@ const handlePurchase =
         <View
           style={styles.panel}
         >
+       <Text
+  style={
+    styles.description
+  }
+>
+  {hasSkinsAccess
+    ? `SELECTED // ${selectedSkin}. PREMIUM SKINS UNLOCKED.`
+    : 'CLASSIC IS ACTIVE. PREMIUM SKINS REQUIRE UNLOCK SKINS OR LIFETIME.'}
+</Text>
+
+<View
+  style={styles.skinGrid}
+>
+  {DOT_SKINS.map(
+    (skin) => {
+      const isClassic =
+        skin === 'CLASSIC';
+
+      const isSelected =
+        skin === selectedSkin;
+
+      const canSelect =
+        isClassic ||
+        hasSkinsAccess;
+
+      const skinColor =
+        DOT_SKIN_COLORS[
+          skin
+        ] ??
+        COLORS.electric;
+
+      return (
+        <Pressable
+          key={skin}
+          disabled={
+            !canSelect
+          }
+          style={[
+            styles.skinTile,
+
+            {
+              opacity:
+                canSelect
+                  ? 1
+                  : 0.5,
+            },
+
+            isSelected &&
+              styles
+                .skinTileActive,
+          ]}
+          onPress={() => {
+            handleSkinSelect(
+              skin
+            );
+          }}
+        >
+          <View
+            style={[
+              styles.skinDot,
+
+              isSelected &&
+                styles
+                  .skinDotActive,
+
+              {
+                backgroundColor:
+                  skinColor,
+
+                shadowColor:
+                  skinColor,
+              },
+            ]}
+          />
+
           <Text
-            style={
-              styles.description
-            }
+            style={[
+              styles.skinName,
+
+              isSelected &&
+                styles.activeText,
+            ]}
           >
-            CLASSIC IS ACTIVE.
-            PREMIUM SKINS UNLOCK
-            AFTER STORE ENTITLEMENTS
-            ARE CONNECTED.
+            {skin}
           </Text>
 
-          <View
-            style={styles.skinGrid}
+          <Text
+            style={
+              styles.skinState
+            }
           >
-            {DOT_SKINS.map(
-              (skin) => {
-                const isClassic =
-                  skin ===
-                  'CLASSIC';
-
-                return (
-                  <View
-                    key={skin}
-                    style={[
-                      styles.skinTile,
-
-                      isClassic &&
-                        styles.skinTileActive,
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.skinDot,
-
-                        isClassic &&
-                          styles
-                            .skinDotActive,
-                      ]}
-                    />
-
-                    <Text
-                      style={[
-                        styles.skinName,
-
-                        isClassic &&
-                          styles.activeText,
-                      ]}
-                    >
-                      {skin}
-                    </Text>
-
-                    <Text
-                      style={
-                        styles.skinState
-                      }
-                    >
-                      {isClassic
-                        ? 'ACTIVE'
-                        : 'LOCKED'}
-                    </Text>
-                  </View>
-                );
-              }
-            )}
-          </View>
-        </View>
+            {isSelected
+              ? 'ACTIVE'
+              : canSelect
+                ? 'AVAILABLE'
+                : 'LOCKED'}
+          </Text>
+        </Pressable>
+      );
+    }
+  )}
+</View>
+</View>
 
         <SectionTitle>
           STORE
@@ -1062,12 +1159,21 @@ const handlePurchase =
           />
 
           <PurchaseStoreButton
-  title="GET PRO"
-  subtitle={getPurchaseSubtitle(
-    proProduct,
-    revenueCatState
-  )}
+  title={
+    hasProAccess
+      ? 'PRO OWNED'
+      : 'GET PRO'
+  }
+  subtitle={
+    hasProAccess
+      ? 'ACCESS ACTIVE'
+      : getPurchaseSubtitle(
+          proProduct,
+          revenueCatState
+        )
+  }
   disabled={
+    hasProAccess ||
     !proProduct ||
     storeBusy
   }
@@ -1084,12 +1190,21 @@ const handlePurchase =
 />
 
 <PurchaseStoreButton
-  title="UNLOCK SKINS"
-  subtitle={getPurchaseSubtitle(
-    skinsProduct,
-    revenueCatState
-  )}
+  title={
+    hasSkinsAccess
+      ? 'SKINS OWNED'
+      : 'UNLOCK SKINS'
+  }
+  subtitle={
+    hasSkinsAccess
+      ? 'ACCESS ACTIVE'
+      : getPurchaseSubtitle(
+          skinsProduct,
+          revenueCatState
+        )
+  }
   disabled={
+    hasSkinsAccess ||
     !skinsProduct ||
     storeBusy
   }
@@ -1106,12 +1221,21 @@ const handlePurchase =
 />
 
 <PurchaseStoreButton
-  title="LIFETIME"
-  subtitle={getPurchaseSubtitle(
-    lifetimeProduct,
-    revenueCatState
-  )}
+  title={
+    hasLifetimeAccess
+      ? 'LIFETIME OWNED'
+      : 'LIFETIME'
+  }
+  subtitle={
+    hasLifetimeAccess
+      ? 'ALL ACCESS ACTIVE'
+      : getPurchaseSubtitle(
+          lifetimeProduct,
+          revenueCatState
+        )
+  }
   disabled={
+    hasLifetimeAccess ||
     !lifetimeProduct ||
     storeBusy
   }
@@ -1126,6 +1250,7 @@ const handlePurchase =
     );
   }}
 />
+
 
 <PurchaseStoreButton
   title="RESTORE PURCHASES"
