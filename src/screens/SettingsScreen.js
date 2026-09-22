@@ -44,6 +44,11 @@ import {
 } from '../services/revenuecat';
 
 import {
+  getSupabaseState,
+  subscribeSupabaseState,
+} from '../services/supabase';
+
+import {
   setSoundSettings,
 } from '../utils/sounds';
 
@@ -310,6 +315,49 @@ function getRevenueCatStatusColor(
   }
 }
 
+function getSupabaseSystemLabel(
+  status
+) {
+  switch (status) {
+    case 'ready':
+      return 'CONNECTED';
+
+    case 'connecting':
+      return 'CONNECTING';
+
+    case 'syncing':
+      return 'SYNCING';
+
+    case 'unavailable':
+      return 'OFFLINE';
+
+    case 'idle':
+      return 'WAITING';
+
+    default:
+      return 'NOT CONFIGURED';
+  }
+}
+
+function getSupabaseStatusColor(
+  status
+) {
+  switch (status) {
+    case 'ready':
+      return COLORS.success;
+
+    case 'connecting':
+    case 'syncing':
+      return COLORS.electric;
+
+    case 'unavailable':
+      return COLORS.warning;
+
+    default:
+      return COLORS.muted;
+  }
+}
+
 function getPurchaseSubtitle(
   product,
   revenueCatState
@@ -390,6 +438,23 @@ const [
 ] = useState(false);
 
 const [
+  supabaseState,
+  setSupabaseState,
+] = useState(
+  () => getSupabaseState()
+);
+
+useEffect(() => {
+  setSupabaseState(
+    getSupabaseState()
+  );
+
+  return subscribeSupabaseState(
+    setSupabaseState
+  );
+}, []);
+
+const [
   revenueCatState,
   setRevenueCatState,
 ] = useState(
@@ -419,6 +484,16 @@ const revenueCatStoreLabel =
 const revenueCatStatusColor =
   getRevenueCatStatusColor(
     revenueCatState.status
+  );
+
+  const supabaseSystemLabel =
+  getSupabaseSystemLabel(
+    supabaseState.status
+  );
+
+const supabaseStatusColor =
+  getSupabaseStatusColor(
+    supabaseState.status
   );
 
   const {
@@ -1279,10 +1354,15 @@ const handlePurchase =
           style={styles.panel}
         >
           <StatusRow
-            title="SUPABASE"
-            description="OPTIONAL CLOUD SYNC"
-            status="NOT CONFIGURED"
-          />
+  title="SUPABASE"
+  description="OPTIONAL CLOUD SYNC"
+  status={
+    supabaseSystemLabel
+  }
+  statusColor={
+    supabaseStatusColor
+  }
+/>
 
           <View
             style={styles.divider}

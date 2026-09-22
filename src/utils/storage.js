@@ -28,6 +28,13 @@ export const DEFAULT_GAME_DATA = {
 
   purchases: {},
 
+  sync: {
+    supabase: {
+      userId: null,
+      lastSyncAt: null,
+    },
+  },
+
   settings: {
     ...DEFAULT_SETTINGS,
   },
@@ -128,6 +135,26 @@ function normalizeGameData(
       ? data.purchases
       : {};
 
+const sync =
+  data.sync &&
+  typeof data.sync ===
+    'object' &&
+  !Array.isArray(
+    data.sync
+  )
+    ? data.sync
+    : {};
+
+const supabaseSync =
+  sync.supabase &&
+  typeof sync.supabase ===
+    'object' &&
+  !Array.isArray(
+    sync.supabase
+  )
+    ? sync.supabase
+    : {};
+
   const settings =
     data.settings &&
     typeof data.settings === 'object' &&
@@ -177,6 +204,30 @@ function normalizeGameData(
     challenges,
 
     purchases,
+
+sync: {
+  ...sync,
+
+  supabase: {
+    userId:
+      typeof supabaseSync
+        .userId ===
+        'string' &&
+      supabaseSync
+        .userId.length > 0
+        ? supabaseSync.userId
+        : null,
+
+    lastSyncAt:
+      Number.isFinite(
+        supabaseSync
+          .lastSyncAt
+      )
+        ? supabaseSync
+            .lastSyncAt
+        : null,
+  },
+},
 
     settings: {
       ...DEFAULT_SETTINGS,
@@ -311,6 +362,18 @@ export function resetLocalProgress() {
 
       purchases: {
         ...gameData.purchases,
+      },
+
+      sync: {
+        ...gameData.sync,
+
+        supabase: {
+          ...(
+            gameData.sync
+              ?.supabase ??
+            {}
+          ),
+        },
       },
 
       settings: {

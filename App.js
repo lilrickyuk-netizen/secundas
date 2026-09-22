@@ -44,6 +44,10 @@ import {
 } from './src/services/revenuecat';
 
 import {
+  initializeSupabase,
+} from './src/services/supabase';
+
+import {
   initializeSoundManager,
   unloadSoundManager,
 } from './src/utils/sounds';
@@ -105,6 +109,10 @@ export default function App() {
 
   useEffect(() => {
   void initializeRevenueCat();
+}, []);
+
+useEffect(() => {
+  void initializeSupabase();
 }, []);
 
   useEffect(() => {
